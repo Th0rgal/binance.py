@@ -1,5 +1,5 @@
 import logging
-
+import http
 
 class Client:
     def __init__(self, endpoint="https://api.binance.com"):

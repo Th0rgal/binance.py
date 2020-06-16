@@ -1,4 +1,4 @@
-import sys, toml, unittest
+import os, sys, toml, shutil, unittest
 
 # to import binance.py from the dev directory
 sys.path.append("../")

@@ -28,5 +28,9 @@ class Config:
         self.api_key = binance["api_key"]
         self.api_secret = binance["api_secret"]
 
-client = binance.Client()
 
+# /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
+# Don't forget to add your config to .gitignore and give a template
+config = Config("config.toml", "config.template.toml")
+client = binance.Client()
+client.connect(config.api_key, config.api_secret)

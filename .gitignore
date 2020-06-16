@@ -15,6 +15,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+config.toml
 lib/
 lib64/
 parts/

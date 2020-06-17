@@ -38,7 +38,8 @@ async def main(loop):
     start = time.time()
     await client.ping()
     print("binance pinged in {delay}s".format(delay=(time.time()-start)))
-    await client.fetch_order_book("ETHBTC")
+    order_book = await client.fetch_order_book("ETHBTC")
+    print(order_book)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

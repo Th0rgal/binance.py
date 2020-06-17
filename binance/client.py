@@ -1,4 +1,3 @@
-import logging
 import aiohttp
 from .http import HttpClient
 
@@ -35,4 +34,11 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book
     async def fetch_order_book(self, symbol, limit=100):
-        return await self.http.send_api_call("/api/v3/depth", json={"symbol": symbol})
+        if limit == 100:
+            return await self.http.send_api_call(
+                "/api/v3/depth", params={"symbol": symbol}, signed=False
+            )
+        else:
+            return await self.http.send_api_call(
+                "/api/v3/depth", params={"symbol": symbol, "limit": limit}, signed=False
+            )

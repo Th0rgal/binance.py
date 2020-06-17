@@ -1,4 +1,4 @@
-import os, sys, toml, shutil, unittest
+import os, sys, toml, shutil, asyncio
 
 # to import binance.py from the dev directory
 sys.path.append("../")
@@ -28,9 +28,14 @@ class Config:
         self.api_key = binance["api_key"]
         self.api_secret = binance["api_secret"]
 
+async def main(loop):
+    # /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
+    # Don't forget to add your config to .gitignore and give a template
+    config = Config("config.toml", "config.template.toml")
+    client = await binance.Client().connect(config.api_key, config.api_secret).load()
+    print(client.rateLimits)
 
-# /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
-# Don't forget to add your config to .gitignore and give a template
-config = Config("config.toml", "config.template.toml")
-client = binance.Client()
-client.connect(config.api_key, config.api_secret)
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main(loop))
+    loop.run_forever()

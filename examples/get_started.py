@@ -33,7 +33,7 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = await binance.Client().connect(config.api_key, config.api_secret).load()
-    print(client.rateLimits)
+    print(client.rate_limits)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

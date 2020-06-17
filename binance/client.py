@@ -14,5 +14,5 @@ class Client:
 
     async def load(self):
         infos = await self.http.fetch_exchange_info()
-        self.rateLimits = infos["rateLimits"]
+        self.rate_limits = infos["rateLimits"]
         return self

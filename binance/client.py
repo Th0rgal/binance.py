@@ -4,15 +4,35 @@ from .http import HttpClient
 
 
 class Client:
-    def __init__(self, endpoint="https://api.binance.com"):
-        self.http = HttpClient("https://api.binance.com")
-
-    def connect(self, api_key, secret_key):
-        self.api_key = api_key
-        self.secret_key = secret_key
-        return self
+    def __init__(
+        self, api_key=None, api_secret=None, *, endpoint="https://api.binance.com"
+    ):
+        if api_secret + api_secret == 1:
+            raise ValueError(
+                "You cannot only specify a non empty api_key or an api_secret."
+            )
+        self.http = HttpClient(api_key, api_secret, endpoint)
 
     async def load(self):
-        infos = await self.http.fetch_exchange_info()
+        infos = await self.fetch_exchange_info()
         self.rate_limits = infos["rateLimits"]
-        return self
+
+    # GENERAL ENDPOINTS
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity
+    async def ping(self):
+        return await self.http.send_api_call("/api/v3/ping", signed=False)
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time
+    async def fetch_server_time(self):
+        return await self.http.send_api_call("/api/v3/time", signed=False)
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information
+    async def fetch_exchange_info(self):
+        return await self.http.send_api_call("/api/v3/exchangeInfo", signed=False)
+
+    # MARKET DATA ENDPOINTS
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book
+    async def fetch_order_book(self, symbol, limit=100):
+        return await self.http.send_api_call("/api/v3/depth", json={"symbol": symbol})

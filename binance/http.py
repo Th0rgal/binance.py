@@ -1,23 +1,32 @@
-import aiohttp
+import aiohttp, hashlib, hmac, time
+from urllib.parse import urlencode
 
 
 class HttpClient:
-    def __init__(self, endpoint):
+    def __init__(self, api_key, api_secret, endpoint):
+        self.api_key = api_secret
+        self.api_secret = api_secret
         self.endpoint = endpoint
-        self.session = aiohttp.ClientSession()
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information
-    async def fetch_exchange_info(self):
-        return await self.send_api_call("/api/v3/exchangeInfo")
+    def _generate_signature(self, data):
+        print(data)
+        query = urlencode(sorted(data.items()))
+        print(query)
+        return hmac.new(
+            self.api_secret.encode("utf-8"), query.encode("utf-8"), hashlib.sha256,
+        ).hexdigest()
 
-    async def send_api_call(self, path, method="GET", **kwargs):
-        # return the JSON body of a call to Discord REST API
-        defaults = {"headers": {}}  # X-MBX-APIKEY
-        kwargs = dict(defaults, **kwargs)
-        async with self.session as session:
+    async def send_api_call(self, path, method="GET", signed=True, **kwargs):
+        # return the JSON body of a call to Binance REST API
+
+        if signed:
+            kwargs = dict({"headers": {"X-MBX-APIKEY": self.api_key}}, **kwargs)
+            kwargs["json"]["timestamp"] = int(time.time() * 1000)
+            kwargs["json"]["signature"] = self._generate_signature(kwargs["json"])
+
+        async with aiohttp.ClientSession() as session:
             async with session.request(
                 method, self.endpoint + path, **kwargs,
             ) as response:
-                assert response.status >= 200 and response.status < 300, response.reason
-                if response.status != 204:
-                    return await response.json()
+                # todo: manage response.status and response.reason
+                return await response.json()

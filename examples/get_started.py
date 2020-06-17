@@ -1,4 +1,4 @@
-import os, sys, toml, shutil, asyncio
+import os, sys, toml, time, shutil, asyncio
 
 # to import binance.py from the dev directory
 sys.path.append("../")
@@ -32,10 +32,14 @@ async def main(loop):
     # /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
-    client = await binance.Client().connect(config.api_key, config.api_secret).load()
+    client = binance.Client(config.api_key, config.api_secret)
+    await client.load()
     print(client.rate_limits)
+    start = time.time()
+    await client.ping()
+    print("binance pinged in {delay}s".format(delay=(time.time()-start)))
+    await client.fetch_order_book("ETHBTC")
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main(loop))
-    loop.run_forever()

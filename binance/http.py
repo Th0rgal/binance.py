@@ -21,11 +21,15 @@ class HttpClient:
             hashlib.sha256,
         ).hexdigest()
 
-    def handle_errors(self, response):
+    async def handle_errors(self, response):
         if response.status >= 500:
             logging.error(
                 "An issue occured on Binance's side; the execution status is UNKNOWN and could have been a success"
             )
+        payload = await response.json()
+        if  payload and "code" in payload:
+            # as defined here: https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
+            raise BinanceError(payload["msg"])
         if response.status >= 400:
             if response.status == 403:
                 raise WAFLimitViolated()
@@ -35,10 +39,7 @@ class HttpClient:
                 raise IPAdressBanned()
             else:
                 raise HTTPError("Malformed request. The issue is on the sender's side")
-        payload = response.json()
-        # as defined here: https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
-        if "code" in payload:
-            raise BinanceError(payload["msg"])
+        return payload
 
     async def send_api_call(
         self, path, method="GET", signed=False, send_api_key=True, **kwargs
@@ -55,8 +56,7 @@ class HttpClient:
             async with session.request(
                 method, self.endpoint + path, **kwargs,
             ) as response:
-                # todo: manage response.status and response.reason
-                return await response.json()
+                return await self.handle_errors(response)
 
 
 class BinanceError(Exception):

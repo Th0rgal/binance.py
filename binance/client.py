@@ -51,7 +51,7 @@ class Client:
             )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list
-    async def fetch_recent_trades_list(self, symbol, limit=100):
+    async def fetch_recent_trades_list(self, symbol, limit=500):
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -65,7 +65,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data
-    async def fetch_old_trades_list(self, symbol, from_id=None, limit=100):
+    async def fetch_old_trades_list(self, symbol, from_id=None, limit=500):
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -80,3 +80,6 @@ class Client:
             "/api/v3/historicalTrades", params=params, signed=False
         )
 
+    async def fetch_aggregate_trades_list(self, symbol, from_id, start_time, end_time, limit=500):
+        pass
+    #api/v3/aggTrades

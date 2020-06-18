@@ -1,20 +1,24 @@
 import aiohttp, hashlib, hmac, time
 from urllib.parse import urlencode
+from . import __version__
 import logging
 
 
 class HttpClient:
-    def __init__(self, api_key, api_secret, endpoint):
+    def __init__(self, api_key, api_secret, endpoint, user_agent=None):
         self.api_key = api_secret
         self.api_secret = api_secret
         self.endpoint = endpoint
+        if user_agent:
+            self.user_agent = user_agent
+        else:
+            self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
 
     def _generate_signature(self, data):
-        print(data)
-        query = urlencode(sorted(data.items()))
-        print(query)
         return hmac.new(
-            self.api_secret.encode("utf-8"), query.encode("utf-8"), hashlib.sha256,
+            self.api_secret.encode("utf-8"),
+            urlencode(sorted(data.items())).encode("utf-8"),
+            hashlib.sha256,
         ).hexdigest()
 
     def handle_errors(self, response):
@@ -36,11 +40,14 @@ class HttpClient:
         if "code" in payload:
             raise BinanceError(payload["msg"])
 
-    async def send_api_call(self, path, method="GET", signed=False, **kwargs):
+    async def send_api_call(
+        self, path, method="GET", signed=False, send_api_key=True, **kwargs
+    ):
         # return the JSON body of a call to Binance REST API
-
+        kwargs = dict({"headers": {"User-Agent": self.user_agent}}, **kwargs,)
+        if send_api_key:
+            kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
         if signed:
-            kwargs = dict({"headers": {"X-MBX-APIKEY": self.api_key}}, **kwargs)
             kwargs["params"]["timestamp"] = int(time.time() * 1000)
             kwargs["params"]["signature"] = self._generate_signature(kwargs["params"])
 

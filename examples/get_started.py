@@ -34,11 +34,13 @@ async def main(loop):
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
     await client.load()
+    """
     print(client.rate_limits)
     start = time.time()
     await client.ping()
     print("binance pinged in {delay}s".format(delay=(time.time()-start)))
-    order_book = await client.fetch_order_book("ETHBTC")
+    """
+    order_book = await client.fetch_order_book("ETHBTC", 10)
     print(order_book)
 
 if __name__ == "__main__":

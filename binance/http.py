@@ -36,7 +36,7 @@ class HttpClient:
         if "code" in payload:
             raise BinanceError(payload["msg"])
 
-    async def send_api_call(self, path, method="GET", signed=True, **kwargs):
+    async def send_api_call(self, path, method="GET", signed=False, **kwargs):
         # return the JSON body of a call to Binance REST API
 
         if signed:

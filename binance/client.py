@@ -20,15 +20,15 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity
     async def ping(self):
-        return await self.http.send_api_call("/api/v3/ping", signed=False)
+        return await self.http.send_api_call("/api/v3/ping")
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time
     async def fetch_server_time(self):
-        return await self.http.send_api_call("/api/v3/time", signed=False)
+        return await self.http.send_api_call("/api/v3/time")
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information
     async def fetch_exchange_info(self):
-        return await self.http.send_api_call("/api/v3/exchangeInfo", signed=False)
+        return await self.http.send_api_call("/api/v3/exchangeInfo")
 
     # MARKET DATA ENDPOINTS
 
@@ -36,9 +36,9 @@ class Client:
     async def fetch_order_book(self, symbol, limit=100):
         if limit == 100:
             return await self.http.send_api_call(
-                "/api/v3/depth", params={"symbol": symbol}, signed=False
+                "/api/v3/depth", params={"symbol": symbol}
             )
         else:
             return await self.http.send_api_call(
-                "/api/v3/depth", params={"symbol": symbol, "limit": limit}, signed=False
+                "/api/v3/depth", params={"symbol": symbol, "limit": limit}
             )

@@ -58,7 +58,7 @@ class Client:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. Valid limits: {valid_limits}"
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
             )
         return await self.http.send_api_call(
             "/api/v3/trades", params=params, signed=False
@@ -72,7 +72,7 @@ class Client:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. Valid limits: {valid_limits}"
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
             )
         if from_id:
             params["fromId"] = from_id
@@ -80,6 +80,74 @@ class Client:
             "/api/v3/historicalTrades", params=params, signed=False
         )
 
-    async def fetch_aggregate_trades_list(self, symbol, from_id, start_time, end_time, limit=500):
-        pass
-    #api/v3/aggTrades
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list
+    async def fetch_aggregate_trades_list(
+        self, symbol, from_id=0, start_time=0, end_time=0, limit=500
+    ):
+        if limit == 500:
+            params = {"symbol": symbol}
+        elif limit > 0 and limit < 1000:
+            params = {"symbol": symbol, "limit": limit}
+        else:
+            raise ValueError(
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+            )
+        if from_id:
+            params["fromId"] = from_id
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        return await self.http.send_api_call(
+            "/api/v3/aggTrades", params=params, signed=False
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data
+    async def fetch_klines(self, symbol, interval, start_time=0, end_time=0, limit=500):
+        if limit == 500:
+            params = {"symbol": symbol, "interval": interval}
+        elif limit > 0 and limit < 1000:
+            params = {"symbol": symbol, "interval": interval, "limit": limit}
+        else:
+            raise ValueError(
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+            )
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        return await self.http.send_api_call(
+            "/api/v3/klines", params=params, signed=False
+        )
+
+    async def fetch_average_price(self, symbol):
+        return await self.http.send_api_call(
+            "/api/v3/avgPrice",
+            params={"symbol": symbol},
+            signed=False,
+            send_api_key=False,
+        )
+
+    async def fetch_ticker_price_change_statistics(self, symbol=None):
+        return await self.http.send_api_call(
+            "/api/v3/avgPrice",
+            params={"symbol": symbol} if symbol else {},
+            signed=False,
+            send_api_key=False,
+        )
+
+    async def fetch_symbol_price_ticker(self, symbol=None):
+        return await self.http.send_api_call(
+            "/api/v3/ticker/price",
+            params={"symbol": symbol} if symbol else {},
+            signed=False,
+            send_api_key=False,
+        )
+
+    async def fetch_symbol_order_book_ticker(self, symbol=None):
+        return await self.http.send_api_call(
+            "/api/v3/ticker/bookTicker",
+            params={"symbol": symbol} if symbol else {},
+            signed=False,
+            send_api_key=False,
+        )

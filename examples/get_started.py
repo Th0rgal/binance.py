@@ -40,7 +40,7 @@ async def main(loop):
     await client.ping()
     print("binance pinged in {delay}s".format(delay=(time.time()-start)))
     """
-    order_book = await client.fetch_old_trades_list("ETHBTC", 10)
+    order_book = await client.fetch_ticker_price_change_statistics("ETHBTC")
     print(order_book)
 
 if __name__ == "__main__":

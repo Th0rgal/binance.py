@@ -120,6 +120,7 @@ class Client:
             "/api/v3/klines", params=params, signed=False
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-average-price
     async def fetch_average_price(self, symbol):
         return await self.http.send_api_call(
             "/api/v3/avgPrice",
@@ -128,6 +129,7 @@ class Client:
             send_api_key=False,
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics
     async def fetch_ticker_price_change_statistics(self, symbol=None):
         return await self.http.send_api_call(
             "/api/v3/avgPrice",
@@ -136,6 +138,7 @@ class Client:
             send_api_key=False,
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-price-ticker
     async def fetch_symbol_price_ticker(self, symbol=None):
         return await self.http.send_api_call(
             "/api/v3/ticker/price",
@@ -144,6 +147,7 @@ class Client:
             send_api_key=False,
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-order-book-ticker
     async def fetch_symbol_order_book_ticker(self, symbol=None):
         return await self.http.send_api_call(
             "/api/v3/ticker/bookTicker",

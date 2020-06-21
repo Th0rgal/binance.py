@@ -155,3 +155,29 @@ class Client:
             signed=False,
             send_api_key=False,
         )
+
+    # ACCOUNT ENDPOINTS
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade
+    async def create_order(
+        self,
+        symbol,
+        side,
+        type,
+        time_in_force,
+        quantity,
+        quote_order_quantity,
+        price,
+        new_client_order_id,
+        stop_price,
+        iceberg_quantity,
+        new_order_response_type,
+        receive_window,
+        timestamp,
+    ):
+        return await self.http.send_api_call(
+            "/api/v3/order",
+            params={"symbol": symbol} if symbol else {},
+            signed=True,
+            send_api_key=False,
+        )

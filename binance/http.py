@@ -1,4 +1,5 @@
 import aiohttp, hashlib, hmac, time
+from operator import itemgetter
 from urllib.parse import urlencode
 from . import __version__
 import logging
@@ -15,11 +16,32 @@ class HttpClient:
             self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
 
     def _generate_signature(self, data):
-        return hmac.new(
+        query_string = urlencode(data)
+        print(query_string)
+        m = hmac.new(
             self.api_secret.encode("utf-8"),
-            urlencode(sorted(data.items())).encode("utf-8"),
+            query_string.encode("utf-8"),
             hashlib.sha256,
-        ).hexdigest()
+        )
+        return m.hexdigest()
+
+    def _order_params(self, data):
+        """Convert params to list with signature as last element
+        :param data:
+        :return:
+        """
+        has_signature = False
+        params = []
+        for key, value in data.items():
+            if key == "signature":
+                has_signature = True
+            else:
+                params.append((key, value))
+        # sort parameters by key
+        params.sort(key=itemgetter(0))
+        if has_signature:
+            params.append(("signature", data["signature"]))
+        return params
 
     async def handle_errors(self, response):
         if response.status >= 500:
@@ -27,7 +49,7 @@ class HttpClient:
                 "An issue occured on Binance's side; the execution status is UNKNOWN and could have been a success"
             )
         payload = await response.json()
-        if  payload and "code" in payload:
+        if payload and "code" in payload:
             # as defined here: https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
             raise BinanceError(payload["msg"])
         if response.status >= 400:
@@ -48,9 +70,23 @@ class HttpClient:
         kwargs = dict({"headers": {"User-Agent": self.user_agent}}, **kwargs,)
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
+        data = kwargs.get("data", None)
+        # print(data)
+        if data and isinstance(data, dict):
+            print("a")
+            kwargs["data"] = data
+
+            # find any requests params passed and apply them
+            if "params" in kwargs:
+                # merge requests params into kwargs
+                kwargs["data"].update(kwargs["params"])
+                del kwargs["params"]
         if signed:
-            kwargs["params"]["timestamp"] = int(time.time() * 1000)
-            kwargs["params"]["signature"] = self._generate_signature(kwargs["params"])
+            kwargs["data"]["timestamp"] = int(time.time() * 1000)
+            data = self._order_params(kwargs["data"])
+            print(data)
+            kwargs["data"]["signature"] = self._generate_signature(data)
+            print(kwargs["data"])
 
         async with aiohttp.ClientSession() as session:
             async with session.request(

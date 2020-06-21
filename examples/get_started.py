@@ -4,6 +4,7 @@ import os, sys, toml, time, shutil, asyncio
 sys.path.append("../")
 
 import binance
+from binance import SymbolType, Side
 
 
 class Config:
@@ -40,8 +41,8 @@ async def main(loop):
     await client.ping()
     print("binance pinged in {delay}s".format(delay=(time.time()-start)))
     """
-    order_book = await client.fetch_ticker_price_change_statistics("ETHBTC")
-    print(order_book)
+    order = await client.create_order("ETHBTC", Side.SELL.value, SymbolType.SPOT.value, test=True)
+    print(order)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

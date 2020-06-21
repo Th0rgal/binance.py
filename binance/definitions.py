@@ -14,7 +14,7 @@ class SymbolStatus(Enum):
 
 
 # Symbol type:
-class Type(Enum):
+class SymbolType(Enum):
     SPOT = "SPOT"
 
 

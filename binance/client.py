@@ -1,4 +1,4 @@
-import aiohttp
+import aiohttp, time
 from .http import HttpClient
 
 
@@ -163,20 +163,37 @@ class Client:
         self,
         symbol,
         side,
-        type,
-        time_in_force,
-        quantity,
-        quote_order_quantity,
-        price,
-        new_client_order_id,
-        stop_price,
-        iceberg_quantity,
-        new_order_response_type,
-        receive_window,
-        timestamp,
+        symbol_type,
+        time_in_force=None,
+        quantity=None,
+        quote_order_quantity=None,
+        price=None,
+        new_client_order_id=None,
+        stop_price=None,
+        iceberg_quantity=None,
+        new_order_response_type=None,
+        receive_window=None,
+        test=False,
     ):
-        return await self.http.send_api_call(
-            "/api/v3/order",
-            params={"symbol": symbol} if symbol else {},
-            signed=True
-        )
+        params = {"symbol": symbol, "side": side, "type": symbol_type}
+        if time_in_force:
+            params["timeInForce"] = time_in_force
+        if quantity:
+            params["quantity"] = quantity
+        if quote_order_quantity:
+            params["quoteOrderQty"] = quote_order_quantity
+        if price:
+            params["price"] = price
+        if new_client_order_id:
+            params["newClientOrderId"] = new_client_order_id
+        if stop_price:
+            params["stopPrice"] = stop_price
+        if iceberg_quantity:
+            params["icebergQty"] = iceberg_quantity
+        if new_order_response_type:
+            params["newOrderRespType"] = new_order_response_type
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        route = "/api/v3/order/test" if test else "/api/v3/order"
+        return await self.http.send_api_call(route, "POST", data=params, signed=True)

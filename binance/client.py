@@ -178,6 +178,5 @@ class Client:
         return await self.http.send_api_call(
             "/api/v3/order",
             params={"symbol": symbol} if symbol else {},
-            signed=True,
-            send_api_key=False,
+            signed=True
         )

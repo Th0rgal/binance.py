@@ -77,7 +77,7 @@ class TimeInForce(Enum):
 
 # Kline/Candlestick chart intervals
 # m -> minutes; h -> hours; d -> days; w -> weeks; M -> months
-class Kline(Enum):
+class Interval(Enum):
     ONE_MINUTE = "1m"
     THREE_MINUTES = "3m"
     FIVE_MINUTES = "5m"

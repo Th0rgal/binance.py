@@ -35,15 +35,11 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
-    # await client.load_rate_limits()
-    # print("ratelimits:", client.rate_limits)
+    await client.load_rate_limits()
 
     order = await client.create_order(
         "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
     )
-
-    # query_order = await client.query_order("ETHPAX")
-
     print(order)
 
 

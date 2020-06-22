@@ -251,3 +251,23 @@ class Client:
             "/api/v3/order", params=params, signed=True,
         )
 
+    async def cancel_order(
+        self, symbol, order_id=0, origin_client_order_id=None, new_client_order_id=0, receive_window=0
+    ):
+        params = {"symbol": symbol}
+        if not order_id and not origin_client_order_id:
+            raise ValueError(
+                "This query requires an order_id or an origin_client_order_id."
+            )
+        if order_id:
+            params["orderId"] = order_id
+        if origin_client_order_id:
+            params["originClientOrderId"] = origin_client_order_id
+        if new_client_order_id:
+            params["newClientOrderId"] = origin_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/order", "DELETE" params=params, signed=True,
+        )

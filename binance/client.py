@@ -296,3 +296,29 @@ class Client:
         return await self.http.send_api_call(
             "/api/v3/openOrders", params=params, signed=True,
         )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data
+    async def fetch_all_orders(
+        self, symbol, order_id=0, start_time=0, end_time=0, limit=500, receive_window=0
+    ):
+        if limit == 500:
+            params = {"symbol": symbol}
+        elif limit > 0 and limit < 1000:
+            params = {"symbol": symbol, "limit": limit}
+        else:
+            raise ValueError(
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+            )
+
+        if order_id:
+            params["orderId"] = order_id
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/allOrders", params=params, signed=True,
+        )

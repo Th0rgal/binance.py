@@ -70,9 +70,8 @@ class HttpClient:
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
         data = kwargs.get("data", None)
-        # print(data)
+
         if data and isinstance(data, dict):
-            print("a")
             kwargs["data"] = data
 
             # find any requests params passed and apply them
@@ -83,9 +82,9 @@ class HttpClient:
         if signed:
             kwargs["data"]["timestamp"] = int(time.time() * 1000)
             data = self._order_params(kwargs["data"])
-            print(data)
+            print(kwargs)
             kwargs["data"]["signature"] = self._generate_signature(data)
-            print(kwargs["data"])
+            print(kwargs)
 
         async with aiohttp.ClientSession() as session:
             async with session.request(

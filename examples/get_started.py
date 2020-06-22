@@ -29,20 +29,25 @@ class Config:
         self.api_key = binance["api_key"]
         self.api_secret = binance["api_secret"]
 
+
 async def main(loop):
     # /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
     await client.load()
-    """
-    print(client.rate_limits)
-    start = time.time()
-    await client.ping()
-    print("binance pinged in {delay}s".format(delay=(time.time()-start)))
-    """
-    order = await client.create_order("ETHBTC", Side.SELL.value, OrderType.MARKET.value, test=True)
+
+    print("ratelimits:", client.rate_limits)
+
+    order = await client.create_order(
+        "ETHPAX",
+        Side.BUY.value,
+        OrderType.MARKET.value,
+        quote_order_quantity=50,
+        test=True,
+    )
     print(order)
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

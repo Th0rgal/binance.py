@@ -1,5 +1,6 @@
 import aiohttp, time
 from .http import HttpClient
+from . import OrderType
 
 
 class Client:
@@ -176,14 +177,37 @@ class Client:
         test=False,
     ):
         params = {"symbol": symbol, "side": side, "type": order_type}
+
         if time_in_force:
             params["timeInForce"] = time_in_force
-        if quantity:
-            params["quantity"] = quantity
+        elif order_type in [
+            OrderType.LIMIT,
+            OrderType.STOP_LOSS_LIMIT,
+            OrderType.TAKE_PROFIT_LIMIT,
+        ]:
+            raise ValueError("This order type requires you to specify time_in_force.")
+
         if quote_order_quantity:
             params["quoteOrderQty"] = quote_order_quantity
+        if quantity:
+            params["quantity"] = quantity
+        elif not quote_order_quantity:
+            raise ValueError(
+                "You need to specify a quantity or a quote_order_quantity."
+                if order_type == OrderType.MARKET
+                else "You need to specify a quantity."
+            )
+
         if price:
             params["price"] = price
+        elif order_type in [
+            OrderType.LIMIT,
+            OrderType.STOP_LOSS_LIMIT,
+            OrderType.TAKE_PROFIT_LIMIT,
+            OrderType.LIMIT_MAKER,
+        ]:
+            raise ValueError("This order type requires you to specify a price.")
+
         if new_client_order_id:
             params["newClientOrderId"] = new_client_order_id
         if stop_price:

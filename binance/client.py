@@ -284,3 +284,15 @@ class Client:
         return await self.http.send_api_call(
             "/api/v3/openOrders", "DELETE" params=params, signed=True,
         )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
+    async def fetch_open_orders(
+        self, symbol, receive_window=0
+    ):
+        params = {"symbol": symbol}
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/openOrders", params=params, signed=True,
+        )

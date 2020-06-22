@@ -40,11 +40,7 @@ async def main(loop):
     print("ratelimits:", client.rate_limits)
 
     order = await client.create_order(
-        "ETHPAX",
-        Side.BUY.value,
-        OrderType.MARKET.value,
-        quote_order_quantity=50,
-        test=True,
+        "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
     )
     print(order)
 

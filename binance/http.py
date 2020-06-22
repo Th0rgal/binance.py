@@ -7,7 +7,7 @@ import logging
 
 class HttpClient:
     def __init__(self, api_key, api_secret, endpoint, user_agent=None):
-        self.api_key = api_secret
+        self.api_key = api_key
         self.api_secret = api_secret
         self.endpoint = endpoint
         if user_agent:
@@ -81,10 +81,8 @@ class HttpClient:
                 del kwargs["params"]
         if signed:
             kwargs["data"]["timestamp"] = int(time.time() * 1000)
-            data = self._order_params(kwargs["data"])
-            print(kwargs)
-            kwargs["data"]["signature"] = self._generate_signature(data)
-            print(kwargs)
+            kwargs["data"] = dict(self._order_params(kwargs["data"]))
+            kwargs["data"]["signature"] = self._generate_signature(kwargs["data"])
 
         async with aiohttp.ClientSession() as session:
             async with session.request(

@@ -52,7 +52,7 @@ class ContingencyType(Enum):
 
 
 # Order types (orderTypes, type)
-class OrderTypes(Enum):
+class OrderType(Enum):
     LIMIT = "LIMIT"
     MARKET = "MARKET"
     STOP_LOSS = "STOP_LOSS"

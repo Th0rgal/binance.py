@@ -163,7 +163,7 @@ class Client:
         self,
         symbol,
         side,
-        symbol_type,
+        order_type,
         time_in_force=None,
         quantity=None,
         quote_order_quantity=None,

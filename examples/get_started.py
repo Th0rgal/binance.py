@@ -41,7 +41,7 @@ async def main(loop):
     await client.ping()
     print("binance pinged in {delay}s".format(delay=(time.time()-start)))
     """
-    order = await client.create_order("ETHBTC", Side.SELL.value, SymbolType.SPOT.value, test=True)
+    order = await client.create_order("ETHBTC", Side.SELL.value, OrderType.MARKET.value, test=True)
     print(order)
 
 if __name__ == "__main__":

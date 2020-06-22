@@ -17,7 +17,6 @@ class HttpClient:
 
     def _generate_signature(self, data):
         query_string = urlencode(data)
-        print(query_string)
         m = hmac.new(
             self.api_secret.encode("utf-8"),
             query_string.encode("utf-8"),

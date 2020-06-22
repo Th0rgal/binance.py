@@ -15,10 +15,9 @@ class HttpClient:
             self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
 
     def _generate_signature(self, data):
-        m = hmac.new(
+        return hmac.new(
             self.api_secret.encode("utf-8"), data.encode("utf-8"), hashlib.sha256,
-        )
-        return m.hexdigest()
+        ).hexdigest()
 
     async def handle_errors(self, response):
         if response.status >= 500:

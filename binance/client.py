@@ -13,7 +13,7 @@ class Client:
             )
         self.http = HttpClient(api_key, api_secret, endpoint)
 
-    async def load(self):
+    async def load_rate_limits(self):
         infos = await self.fetch_exchange_info()
         self.rate_limits = infos["rateLimits"]
 
@@ -230,3 +230,13 @@ class Client:
 
         route = "/api/v3/order/test" if test else "/api/v3/order"
         return await self.http.send_api_call(route, "POST", data=params, signed=True)
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
+    async def query_order(
+        self, symbol, orderId=0, origClientOrderId=None, recvWindow=0
+    ):
+        params = {"symbol": symbol}
+        return await self.http.send_api_call(
+            "/api/v3/order", params=params, signed=True,
+        )
+

@@ -16,11 +16,8 @@ class HttpClient:
             self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
 
     def _generate_signature(self, data):
-        query_string = urlencode(data)
         m = hmac.new(
-            self.api_secret.encode("utf-8"),
-            query_string.encode("utf-8"),
-            hashlib.sha256,
+            self.api_secret.encode("utf-8"), data.encode("utf-8"), hashlib.sha256,
         )
         return m.hexdigest()
 
@@ -69,20 +66,19 @@ class HttpClient:
         kwargs = dict({"headers": {"User-Agent": self.user_agent}}, **kwargs,)
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
+
         data = kwargs.get("data", None)
-
-        if data and isinstance(data, dict):
-            kwargs["data"] = data
-
-            # find any requests params passed and apply them
-            if "params" in kwargs:
-                # merge requests params into kwargs
-                kwargs["data"].update(kwargs["params"])
-                del kwargs["params"]
         if signed:
-            kwargs["data"]["timestamp"] = int(time.time() * 1000)
-            kwargs["data"] = dict(self._order_params(kwargs["data"]))
-            kwargs["data"]["signature"] = self._generate_signature(kwargs["data"])
+            content = ""
+            location = "params" if "params" in kwargs else "data"
+            kwargs[location]["timestamp"] = int(time.time() * 1000)
+            if "params" in kwargs:
+                kwargs["params"] = dict(self._order_params(kwargs["params"]))
+                content += urlencode(kwargs["params"])
+            if "data" in kwargs:
+                kwargs["data"] = dict(self._order_params(kwargs["data"]))
+                content += urlencode(kwargs["data"])
+            kwargs[location]["signature"] = self._generate_signature(content)
 
         async with aiohttp.ClientSession() as session:
             async with session.request(

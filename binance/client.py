@@ -185,7 +185,7 @@ class Client:
             OrderType.STOP_LOSS_LIMIT,
             OrderType.TAKE_PROFIT_LIMIT,
         ]:
-            raise ValueError("This order type requires you to specify time_in_force.")
+            raise ValueError("This order type requires a time_in_force.")
 
         if quote_order_quantity:
             params["quoteOrderQty"] = quote_order_quantity
@@ -193,9 +193,9 @@ class Client:
             params["quantity"] = quantity
         elif not quote_order_quantity:
             raise ValueError(
-                "You need to specify a quantity or a quote_order_quantity."
+                "This order type requires a quantity or a quote_order_quantity."
                 if order_type == OrderType.MARKET
-                else "You need to specify a quantity."
+                else "This order type requires a quantity."
             )
 
         if price:
@@ -206,12 +206,21 @@ class Client:
             OrderType.TAKE_PROFIT_LIMIT,
             OrderType.LIMIT_MAKER,
         ]:
-            raise ValueError("This order type requires you to specify a price.")
+            raise ValueError("This order type requires a price.")
 
         if new_client_order_id:
             params["newClientOrderId"] = new_client_order_id
+
         if stop_price:
             params["stopPrice"] = stop_price
+        elif order_type in [
+            OrderType.STOP_LOSS,
+            OrderType.STOP_LOSS_LIMIT,
+            OrderType.TAKE_PROFIT,
+            OrderType.TAKE_PROFIT_LIMIT,
+        ]:
+            raise ValueError("This order type requires a stop_price.")
+
         if iceberg_quantity:
             params["icebergQty"] = iceberg_quantity
         if new_order_response_type:

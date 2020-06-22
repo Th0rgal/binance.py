@@ -1,5 +1,4 @@
 import aiohttp, hashlib, hmac, time
-from operator import itemgetter
 from urllib.parse import urlencode
 from . import __version__
 import logging
@@ -20,24 +19,6 @@ class HttpClient:
             self.api_secret.encode("utf-8"), data.encode("utf-8"), hashlib.sha256,
         )
         return m.hexdigest()
-
-    def _order_params(self, data):
-        """Convert params to list with signature as last element
-        :param data:
-        :return:
-        """
-        has_signature = False
-        params = []
-        for key, value in data.items():
-            if key == "signature":
-                has_signature = True
-            else:
-                params.append((key, value))
-        # sort parameters by key
-        params.sort(key=itemgetter(0))
-        if has_signature:
-            params.append(("signature", data["signature"]))
-        return params
 
     async def handle_errors(self, response):
         if response.status >= 500:
@@ -73,10 +54,8 @@ class HttpClient:
             location = "params" if "params" in kwargs else "data"
             kwargs[location]["timestamp"] = int(time.time() * 1000)
             if "params" in kwargs:
-                kwargs["params"] = dict(self._order_params(kwargs["params"]))
                 content += urlencode(kwargs["params"])
             if "data" in kwargs:
-                kwargs["data"] = dict(self._order_params(kwargs["data"]))
                 content += urlencode(kwargs["data"])
             kwargs[location]["signature"] = self._generate_signature(content)
 

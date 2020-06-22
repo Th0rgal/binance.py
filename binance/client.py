@@ -175,7 +175,7 @@ class Client:
         receive_window=None,
         test=False,
     ):
-        params = {"symbol": symbol, "side": side, "type": symbol_type}
+        params = {"symbol": symbol, "side": side, "type": order_type}
         if time_in_force:
             params["timeInForce"] = time_in_force
         if quantity:

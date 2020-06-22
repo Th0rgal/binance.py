@@ -4,7 +4,7 @@ import os, sys, toml, time, shutil, asyncio
 sys.path.append("../")
 
 import binance
-from binance import SymbolType, Side
+from binance import OrderType, Side
 
 
 class Config:

@@ -16,5 +16,19 @@
 ## Why binance.py?
 The binance api is complex to grasp and using a wrapper saves time but also ensures that the right practices are adopted. Binance.py offers a modern and asynchronous solution.
 
+## Get started
+
+- [Generate an API Key](https://www.binance.com/en/support/articles/360002502072) and assign relevant permissions.
+- Install binance.py:
+```
+pip install binance.py
+```
+- Import binance, and check the [examples](https://github.com/Th0rgal/binance.py/tree/master/examples)
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py?ref=badge_large)
+
+## Donate
+- ETH (ENS): ``thomas.ethers.xyz``
+- ETH (legacy address): ``0x54c5a92c57A07f33500Ec9977797219D70D506C9``
+- BTC: ``bc1qm9g2k3fznl2a9vghnpnwem87p03txl4y5lahyu``

@@ -323,3 +323,7 @@ class Client:
         return await self.http.send_api_call(
             "/api/v3/allOrders", params=params, signed=True,
         )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-oco-trade
+    async def create_oco(self):
+        pass

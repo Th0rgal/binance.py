@@ -456,3 +456,38 @@ class Client:
             "/api/v3/openOrderList", params=params, signed=True,
         )
 
+    async def fetch_account_information(self, receive_window=None):
+        params = {}
+
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/account", params=params, signed=True,
+        )
+
+    async def fetch_account_trade_list(
+        self,
+        symbol,
+        start_time=None,
+        end_time=None,
+        from_id=None,
+        limit=500,
+        receive_window=None,
+    ):
+        if limit == 500:
+            params = {"symbol": symbol}
+        elif limit > 0 and limit < 1000:
+            params = {"symbol": symbol, "limit": limit}
+
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        if from_id:
+            params["fromId"] = from_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+        return await self.http.send_api_call(
+            "/api/v3/myTrades", params=params, signed=True,
+        )

@@ -10,6 +10,7 @@
     <a href="https://app.fossa.com/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py?ref=badge_small" alt="FOSSA Status">
         <img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=small"/>
     </a>
+    <img src="https://img.shields.io/pypi/dm/binance.py?style=flat-square"/>
 </p>
 
 ## Why binance.py?

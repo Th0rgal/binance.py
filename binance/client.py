@@ -1,6 +1,6 @@
 import aiohttp, time
 from .http import HttpClient
-from . import OrderType
+from . import OrderType, Side
 
 
 class Client:
@@ -325,5 +325,134 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-oco-trade
-    async def create_oco(self):
-        pass
+    async def create_oco(
+        self,
+        symbol,
+        side,
+        quantity,
+        price,
+        stop_price,
+        list_client_order_id=None,
+        limit_iceberg_quantity=None,
+        stop_client_order_id=None,
+        stop_limit_price=None,
+        stop_iceberg_quantity=None,
+        stop_limit_time_in_force=None,
+        new_order_response_type=None,
+        receive_window=None,
+    ):
+        params = {
+            "symbol": symbol,
+            "side": side,
+            "quantity": quantity,
+            "price": price,
+            "stopPrice": stop_price,
+        }
+
+        if list_client_order_id:
+            params["listClientOrderId"] = list_client_order_id
+        if limit_iceberg_quantity:
+            params["limitIcebergQty"] = limit_iceberg_quantity
+        if stop_client_order_id:
+            params["stopLimitPrice"] = stop_client_order_id
+        if stop_iceberg_quantity:
+            params["stopIcebergQty"] = stop_iceberg_quantity
+        if stop_limit_time_in_force:
+            params["stopLimitTimeInForce"] = stop_limit_time_in_force
+        if new_order_response_type:
+            params["newOrderRespType"] = new_order_response_type
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/order/oco", "POST", data=params, signed=True
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-oco-trade
+    async def cancel_oco(
+        self,
+        symbol,
+        order_list_id=None,
+        list_lient_order_id=None,
+        new_client_order_id=None,
+        receive_window=None,
+    ):
+        params = {"symbol": symbol}
+        if not order_list_id and not list_lient_order_id:
+            raise ValueError(
+                "This query requires a order_list_id or a list_lient_order_id."
+            )
+        if order_list_id:
+            params["orderListId"] = order_list_id
+        if list_lient_order_id:
+            params["listClientOrderId"] = list_lient_order_id
+        if new_client_order_id:
+            params["newClientOrderId"] = new_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/order/oco", "DELETE", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
+    async def query_oco(
+        self,
+        symbol,
+        order_list_id=None,
+        origin_client_order_id=None,
+        receive_window=None,
+    ):
+        params = {"symbol": symbol}
+        if not order_list_id and not origin_client_order_id:
+            raise ValueError(
+                "This query requires an order_id or an origin_client_order_id."
+            )
+        if order_list_id:
+            params["orderListId"] = order_list_id
+        if origin_client_order_id:
+            params["originClientOrderId"] = origin_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/orderList", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-all-oco-user_data
+    async def query_all_oco(
+        self,
+        from_id=None,
+        start_time=None,
+        end_time=None,
+        limit=None,
+        receive_window=None,
+    ):
+        params = {}
+
+        if from_id:
+            params["fromId"] = from_id
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        if limit:
+            params["limit"] = limit
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/allOrderList", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-open-oco-user_data
+    async def query_open_oco(self, receive_window=None):
+        params = {}
+
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/openOrderList", params=params, signed=True,
+        )
+

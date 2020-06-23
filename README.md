@@ -7,6 +7,9 @@
 <h4 align="center">🦾 A python3 binance API wrapper powered by modern technologies such as asyncio.</h4>
 
 <p align="center">
+    <a href="https://discord.gg/bhbPCXW" alt="discord">
+        <img src="https://img.shields.io/discord/725070664100216922?label=chat&logo=discord"/>
+    </a>
     <a href="https://app.fossa.com/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py?ref=badge_shield" alt="FOSSA Status">
         <img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=shield"/>
     </a>

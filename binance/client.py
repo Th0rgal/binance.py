@@ -253,7 +253,12 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade
     async def cancel_order(
-        self, symbol, order_id=0, origin_client_order_id=None, new_client_order_id=0, receive_window=0
+        self,
+        symbol,
+        order_id=0,
+        origin_client_order_id=None,
+        new_client_order_id=0,
+        receive_window=0,
     ):
         params = {"symbol": symbol}
         if not order_id and not origin_client_order_id:
@@ -270,25 +275,21 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/order", "DELETE" params=params, signed=True,
+            "/api/v3/order", "DELETE", params=params, signed=True,
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
-    async def cancel_all_orders(
-        self, symbol, receive_window=0
-    ):
+    async def cancel_all_orders(self, symbol, receive_window=0):
         params = {"symbol": symbol}
         if receive_window:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/openOrders", "DELETE" params=params, signed=True,
+            "/api/v3/openOrders", "DELETE", params=params, signed=True,
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
-    async def fetch_open_orders(
-        self, symbol, receive_window=0
-    ):
+    async def fetch_open_orders(self, symbol, receive_window=0):
         params = {"symbol": symbol}
         if receive_window:
             params["recvWindow"] = receive_window

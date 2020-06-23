@@ -7,8 +7,8 @@
 <h4 align="center">🦾 A python3 binance API wrapper powered by modern technologies such as asyncio.</h4>
 
 <p align="center">
-    <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Folivia-ai%2Folivia?ref=badge_shield" alt="FOSSA Status">
-        <img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Folivia-ai%2Folivia.svg?type=shield"/>
+    <a href="https://app.fossa.com/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py?ref=badge_small" alt="FOSSA Status">
+        <img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=small"/>
     </a>
 </p>
 

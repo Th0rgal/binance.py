@@ -41,13 +41,22 @@ class TestQueries(unittest.IsolatedAsyncioTestCase):
         logging.info(f"Binance pinged in {delay}s")
         self.assertEqual(response, {})
 
+    async def test_server_time(self):
+        server_time = (await self.client.fetch_server_time())["serverTime"]
+        self.assertTrue(server_time)
+
     async def test_rate_limits(self):
         await self.client.load_rate_limits()
         self.assertTrue(self.client.rate_limits)
 
-    async def test_server_time(self):
-        server_time = (await self.client.fetch_server_time())["serverTime"]
-        self.assertTrue(server_time)
+    async def test_order_book(self):
+        symbol = "ETHBTC"
+        default_limit = await self.client.fetch_order_book(symbol)
+        self.assertTrue(default_limit)
+        special_limit = await self.client.fetch_order_book(symbol, 5)
+        self.assertTrue(special_limit)
+        with self.assertRaises(ValueError):
+            await self.client.fetch_order_book(symbol, 3)
 
 
 if __name__ == "__main__":

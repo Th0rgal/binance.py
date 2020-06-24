@@ -58,6 +58,19 @@ class TestQueries(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             await self.client.fetch_order_book(symbol, 3)
 
+    async def test_recent_trade_list(self):
+        symbol = "ETHBTC"
+        default_limit = await self.client.fetch_recent_trades_list(symbol)
+        self.assertTrue(default_limit)
+        special_limit = await self.client.fetch_recent_trades_list(symbol, 1)
+        self.assertTrue(special_limit)
+
+    async def test_old_trade_list(self):
+        symbol = "ETHBTC"
+        default_limit = await self.client.fetch_old_trades_list(symbol)
+        self.assertTrue(default_limit)
+        special_limit = await self.client.fetch_old_trades_list(symbol, 1)
+        self.assertTrue(special_limit)
 
 if __name__ == "__main__":
     unittest.main()

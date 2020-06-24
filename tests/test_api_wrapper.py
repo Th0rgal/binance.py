@@ -1,9 +1,10 @@
-import sys, unittest, asyncio
-from unittest import IsolatedAsyncioTestCase
+import sys, unittest, logging, asyncio, time, toml, os
+
 sys.path.append("../")
 import binance
 
-# todo: fix these tests
+logging.basicConfig(level=logging.INFO)
+
 
 class Config:
     def __init__(self, file_name, template_name):
@@ -16,7 +17,7 @@ class Config:
     def extract_config(self, file_name, template_name):
         config_file = self.get_path(file_name)
         if not os.path.isfile(config_file):
-            print("config file doesn't exist, copying template!")
+            logging.info("config file doesn't exist, copying template!")
             shutil.copyfile(self.get_path(template_name), config_file)
         return config_file
 
@@ -28,16 +29,25 @@ class Config:
         self.api_secret = binance["api_secret"]
 
 
-class TestConnection(IsolatedAsyncioTestCase):
-    def load_config(self):
+class TestQueries(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
         config = Config("config.toml", "config.template.toml")
         self.client = binance.Client(config.api_key, config.api_secret)
-        self.assertIsNotNone(self.client)
 
+    async def test_connection(self):
+        start = time.time()
+        response = await self.client.ping()
+        delay = time.time() - start
+        logging.info(f"Binance pinged in {delay}s")
+        self.assertEqual(response, {})
 
-    async def load_rate_limits(self):
+    async def test_rate_limits(self):
         await self.client.load_rate_limits()
-        self.assertIsNotNone(self.client.rate_limits)
+        self.assertTrue(self.client.rate_limits)
+
+    async def test_server_time(self):
+        server_time = (await self.client.fetch_server_time())["serverTime"]
+        self.assertTrue(server_time)
 
 
 if __name__ == "__main__":

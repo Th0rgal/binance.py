@@ -40,7 +40,7 @@ def wrap_event(event_data):
 
 class BinanceEventWrapper:
     def __init__(self, event_data):
-        pass
+        self.event_time = event_data["E"]
 
     def fire(self):
         self.handlers.__call__(self)
@@ -54,7 +54,19 @@ class OutboundAccountInfoWrapper(BinanceEvent):
     handlers = outbound_account_info_handlers
 
     def __init__(self, event_data):
-        pass
+        super().__init__(event_data)
+        self.maker_commission_rate = event_data["m"]
+        self.taker_commission_rate = event_data["t"]
+        self.buyer_commission_rate = event_data["b"]
+        self.seller_commission_rate = event_data["s"]
+        self.can_trade = event_data["T"]
+        self.can_withdraw = event_data["W"]
+        self.can_deposit = event_data["D"]
+        self.last_update = event_data["u"]
+        self.balances = dict(
+            map(lambda x: x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"]
+        )
+        self.account_permissions = x["P"]
 
 
 class OutboundAccountPositionWrapper(BinanceEvent):
@@ -62,7 +74,11 @@ class OutboundAccountPositionWrapper(BinanceEvent):
     handlers = outbound_account_position_handlers
 
     def __init__(self, event_data):
-        pass
+        super().__init__(event_data)
+        self.last_update = event_data["u"]
+        self.balances = dict(
+            map(lambda x: x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"]
+        )
 
 
 # BALANCE UPDATE
@@ -73,7 +89,10 @@ class BalanceUpdateWrapper(BinanceEvent):
     handlers = balance_update_handlers
 
     def __init__(self, event_data):
-        pass
+        super().__init__(event_data)
+        self.asset = event_data["a"]
+        self.balance_delta = event_data["d"]
+        self.clear_time = event_data["T"]
 
 
 # ORDER UPDATE
@@ -84,7 +103,37 @@ class OrderUpdateWrapper(BinanceEvent):
     handlers = order_update_handlers
 
     def __init__(self, event_data):
-        pass
+        super().__init__(event_data)
+        self.symbol = event_data["s"]
+        self.client_order_id = event_data["c"]
+        self.side = event_data["S"]
+        self.order_type = event_data["o"]
+        self.time_in_force = event_data["f"]
+        self.order_quantity = event_data["q"]
+        self.order_price = event_data["p"]
+        self.stop_price = event_data["P"]
+        self.iceberg_quantity = event_data["F"]
+        self.order_list_id = event_data["g"]
+        self.original_client_id = event_data["C"]
+        self.current_execution_type = event_data["x"]
+        self.current_order_status = event_data["X"]
+        self.order_reject_reason = event_data["r"]
+        self.order_id = event_data["i"]
+        self.last_executed_quantity = event_data["l"]
+        self.cumulative_filled_quantity = event_data["z"]
+        self.last_executed_price = event_data["L"]
+        self.commission_amount = event_data["n"]
+        self.commission_asset = event_data["N"]
+        self.transaction_time = event_data["T"]
+        self.trade_id = event_data["t"]
+        self.ignore_a = event_data["I"]
+        self.in_order_book = event_data["w"]
+        self.is_maker_side = event_data["m"]
+        self.ignore_b = event_data["M"]
+        self.order_creation_time = event_data["O"]
+        self.quote_asset_transacted = event_data["Z"]
+        self.last_quote_asset_transacted = event_data["Y"]
+        self.quote_order_quantity = event_data["Q"]
 
 
 class ListStatus(BinanceEvent):
@@ -92,4 +141,15 @@ class ListStatus(BinanceEvent):
     handlers = list_status_handlers
 
     def __init__(self, event_data):
-        pass
+        super().__init__(event_data)
+        self.symbol = event_data["s"]
+        self.order_list_id = event_data["g"]
+        self.contingency_type = event_data["c"]
+        self.list_status_type = event_data["l"]
+        self.list_order_status = event_data["L"]
+        self.list_reject_reason = event_data["r"]
+        self.list_client_order_id = event["C"]
+        self.orders = dict(
+            map(lambda x: x["s"], {"orderid": x["i"], "clientorderid": x["c"]}),
+            event_data["O"],
+        )

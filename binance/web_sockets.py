@@ -38,4 +38,4 @@ class UserDataStream:
                 )
                 await self.connect()
             event = wrap_event(json.loads(msg.data))
-            fire_event(event)
+            event.fire()

@@ -38,19 +38,6 @@ def wrap_event(event_data):
     return events_by_name[event_data["e"]](event_data)
 
 
-def fire_event(wrapped_event):
-    handlers_by_event = {
-        OutboundAccountInfoWrapper: outbound_account_info_handlers,
-        OutboundAccountPositionWrapper: outbound_account_position_handlers,
-        BalanceUpdateWrapper: balance_update_handlers,
-        OrderUpdateWrapper: order_update_handlers,
-        ListStatus: list_status_handlers,
-    }
-    for event_class in handlers_by_event:
-        if isinstance(wrapped_event, event_class):
-            handlers_by_event[event_class].__call__(wrap_event)
-
-
 class BinanceEventWrapper:
     def __init__(self, event_data):
         pass

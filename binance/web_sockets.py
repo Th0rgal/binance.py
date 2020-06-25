@@ -1,6 +1,6 @@
 from . import __version__
 import aiohttp, asyncio, logging, json
-
+from .events import wrap_event, fire_event
 
 class UserDataStream:
     def __init__(self, client, endpoint, user_agent):
@@ -37,5 +37,5 @@ class UserDataStream:
                     f"Something went wrong with the websocket, reconnecting..."
                 )
                 await self.connect()
-            data = json.loads(msg.data)
-            print(data)
+            event = wrap_event(json.loads(msg.data))
+            fire_event(event)

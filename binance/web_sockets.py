@@ -1,5 +1,5 @@
 from . import __version__
-import aiohttp, asyncio
+import aiohttp, asyncio, logging, json
 
 
 class UserDataStream:
@@ -27,14 +27,15 @@ class UserDataStream:
 
         while True:
             msg = await web_socket.receive()
-            if msg.tp == aiohttp.MsgType.text:
-                print("msg:" + msg)
-                if msg.data == "close":
-                    await web_socket.close()
-                    break
-                else:
-                    web_socket.send_str(msg.data + "/answer")
-            elif msg.tp == aiohttp.MsgType.closed:
-                break
-            elif msg.tp == aiohttp.MsgType.error:
-                break
+            if msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSE):
+                logging.error(
+                    "Trying to receive something while the websocket is closed! Trying to reconnect."
+                )
+                await self.connect(url)
+            elif msg.type is aiohttp.WSMsgType.ERROR:
+                logging.error(
+                    f"Something went wrong with the websocket, reconnecting..."
+                )
+                await self.connect()
+            data = json.loads(msg.data)
+            print(data)

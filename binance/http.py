@@ -9,6 +9,7 @@ class HttpClient:
         self.api_key = api_key
         self.api_secret = api_secret
         self.endpoint = endpoint
+        self.rate_limit_reached = False
         if user_agent:
             self.user_agent = user_agent
         else:
@@ -24,6 +25,9 @@ class HttpClient:
             logging.error(
                 "An issue occured on Binance's side; the execution status is UNKNOWN and could have been a success"
             )
+        if response.status == 429:
+            self.rate_limit_reached = True
+            raise RateLimitReached()
         payload = await response.json()
         if payload and "code" in payload:
             # as defined here: https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
@@ -31,8 +35,6 @@ class HttpClient:
         if response.status >= 400:
             if response.status == 403:
                 raise WAFLimitViolated()
-            elif response.status == 429:
-                raise RateLimitReached()
             elif response.status == 418:
                 raise IPAdressBanned()
             else:
@@ -42,6 +44,10 @@ class HttpClient:
     async def send_api_call(
         self, path, method="GET", signed=False, send_api_key=True, **kwargs
     ):
+        if self.rate_limit_reached:
+            raise QueryCanceled(
+                "Rate limit reached, to avoid an IP ban, this query has been automatically cancelled"
+            )
         # return the JSON body of a call to Binance REST API
         kwargs = dict({"headers": {"User-Agent": self.user_agent}}, **kwargs,)
         if send_api_key:
@@ -65,11 +71,19 @@ class HttpClient:
                 return await self.handle_errors(response)
 
 
-class BinanceError(Exception):
+class BinancePyError(Exception):
     pass
 
 
-class HTTPError(Exception):
+class BinanceError(BinancePyError):
+    pass
+
+
+class QueryCanceled(BinancePyError):
+    pass
+
+
+class HTTPError(BinancePyError):
 
     code = 400
     message = "Malformed request."

@@ -12,10 +12,18 @@ class Client:
                 "You cannot only specify a non empty api_key or an api_secret."
             )
         self.http = HttpClient(api_key, api_secret, endpoint)
+        self.loaded = False
 
-    async def load_rate_limits(self):
+    async def load(self):
         infos = await self.fetch_exchange_info()
+
+        # load available symbols
+        self.symbols = dict(map(lambda x: (x.pop("symbol"), x), infos["symbols"]))
+
+        # load rate limits
         self.rate_limits = infos["rateLimits"]
+
+        self.loaded = True
 
     # GENERAL ENDPOINTS
 

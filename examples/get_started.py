@@ -35,12 +35,15 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
-    await client.load_rate_limits()
+    await client.load()
+    print(client.symbols["ETHBTC"])
 
+"""
     order = await client.create_order(
         "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
     )
     print(order)
+    """
 
 
 if __name__ == "__main__":

@@ -105,7 +105,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list
     async def fetch_aggregate_trades_list(
-        self, symbol, from_id=0, start_time=0, end_time=0, limit=500
+        self, symbol, from_id=None, start_time=None, end_time=None, limit=500
     ):
         self.assert_symbol(symbol)
         if limit == 500:
@@ -127,7 +127,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data
-    async def fetch_klines(self, symbol, interval, start_time=0, end_time=0, limit=500):
+    async def fetch_klines(self, symbol, interval, start_time=None, end_time=None, limit=500):
         self.assert_symbol(symbol)
         if not interval:
             raise ValueError("This query requires an interval.")
@@ -271,7 +271,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
     async def query_order(
-        self, symbol, order_id=0, origin_client_order_id=None, receive_window=0
+        self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
     ):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
@@ -294,10 +294,10 @@ class Client:
     async def cancel_order(
         self,
         symbol,
-        order_id=0,
+        order_id=None,
         origin_client_order_id=None,
-        new_client_order_id=0,
-        receive_window=0,
+        new_client_order_id=None,
+        receive_window=None,
     ):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
@@ -319,7 +319,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
-    async def cancel_all_orders(self, symbol, receive_window=0):
+    async def cancel_all_orders(self, symbol, receive_window=None):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
         if receive_window:
@@ -330,7 +330,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
-    async def fetch_open_orders(self, symbol, receive_window=0):
+    async def fetch_open_orders(self, symbol, receive_window=None):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
         if receive_window:
@@ -342,7 +342,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data
     async def fetch_all_orders(
-        self, symbol, order_id=0, start_time=0, end_time=0, limit=500, receive_window=0
+        self, symbol, order_id=None, start_time=None, end_time=None, limit=500, receive_window=None
     ):
         self.assert_symbol(symbol)
         if limit == 500:

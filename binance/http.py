@@ -5,7 +5,7 @@ import logging
 
 
 class HttpClient:
-    def __init__(self, api_key, api_secret, endpoint, user_agent=None):
+    def __init__(self, api_key, api_secret, endpoint, user_agent):
         self.api_key = api_key
         self.api_secret = api_secret
         self.endpoint = endpoint
@@ -53,6 +53,7 @@ class HttpClient:
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
 
+        data = kwargs.get("data", None)
         if signed:
             content = ""
             location = "params" if "params" in kwargs else "data"

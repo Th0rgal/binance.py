@@ -1,5 +1,5 @@
 import aiohttp, time
-from .http import HttpClient
+from .http import HttpClient, BinancePyError
 from . import OrderType, Side
 
 
@@ -25,6 +25,14 @@ class Client:
 
         self.loaded = True
 
+    def assert_symbol_exists(self, symbol):
+        assert_symbol_exists(symbol)
+        if self.loaded:
+            if symbol not in self.symbols:
+                raise BinancePyError(
+                    f"Symbol {symbol} is not valid according to the loaded exchange infos."
+                )
+
     # GENERAL ENDPOINTS
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity
@@ -43,8 +51,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book
     async def fetch_order_book(self, symbol, limit=100):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         valid_limits = [5, 10, 20, 50, 100, 500, 1000, 5000]
         if limit == 100:
             return await self.http.send_api_call(
@@ -63,8 +70,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list
     async def fetch_recent_trades_list(self, symbol, limit=500):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -79,8 +85,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data
     async def fetch_old_trades_list(self, symbol, from_id=None, limit=500):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -99,8 +104,7 @@ class Client:
     async def fetch_aggregate_trades_list(
         self, symbol, from_id=0, start_time=0, end_time=0, limit=500
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -121,8 +125,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data
     async def fetch_klines(self, symbol, interval, start_time=0, end_time=0, limit=500):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if not interval:
             raise ValueError("This query requires an interval.")
         if limit == 500:
@@ -143,8 +146,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-average-price
     async def fetch_average_price(self, symbol):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         return await self.http.send_api_call(
             "/api/v3/avgPrice",
             params={"symbol": symbol},
@@ -198,8 +200,7 @@ class Client:
         receive_window=None,
         test=False,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if not side:
             raise ValueError("This query requires a side.")
         if not type:
@@ -263,8 +264,7 @@ class Client:
     async def query_order(
         self, symbol, order_id=0, origin_client_order_id=None, receive_window=0
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if not order_id and not origin_client_order_id:
             raise ValueError(
@@ -290,8 +290,7 @@ class Client:
         new_client_order_id=0,
         receive_window=0,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if not order_id and not origin_client_order_id:
             raise ValueError(
@@ -312,8 +311,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
     async def cancel_all_orders(self, symbol, receive_window=0):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if receive_window:
             params["recvWindow"] = receive_window
@@ -324,8 +322,7 @@ class Client:
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
     async def fetch_open_orders(self, symbol, receive_window=0):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if receive_window:
             params["recvWindow"] = receive_window
@@ -338,8 +335,7 @@ class Client:
     async def fetch_all_orders(
         self, symbol, order_id=0, start_time=0, end_time=0, limit=500, receive_window=0
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:
@@ -379,8 +375,7 @@ class Client:
         new_order_response_type=None,
         receive_window=None,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if not side:
             raise ValueError("This query requires a side.")
         if not quantity:
@@ -426,8 +421,7 @@ class Client:
         new_client_order_id=None,
         receive_window=None,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if not order_list_id and not list_lient_order_id:
             raise ValueError(
@@ -454,8 +448,7 @@ class Client:
         origin_client_order_id=None,
         receive_window=None,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         params = {"symbol": symbol}
         if not order_list_id and not origin_client_order_id:
             raise ValueError(
@@ -528,8 +521,7 @@ class Client:
         limit=500,
         receive_window=None,
     ):
-        if not symbol:
-            raise ValueError("This query requires a symbol.")
+        assert_symbol_exists(symbol)
         if limit == 500:
             params = {"symbol": symbol}
         elif limit > 0 and limit < 1000:

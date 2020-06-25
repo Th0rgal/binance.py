@@ -50,11 +50,17 @@ class BinanceEventWrapper:
 
 
 class OutboundAccountInfoWrapper(BinanceEvent):
+
+    handlers = outbound_account_info_handlers
+
     def __init__(self, event_data):
         pass
 
 
 class OutboundAccountPositionWrapper(BinanceEvent):
+
+    handlers = outbound_account_position_handlers
+
     def __init__(self, event_data):
         pass
 
@@ -63,6 +69,9 @@ class OutboundAccountPositionWrapper(BinanceEvent):
 
 
 class BalanceUpdateWrapper(BinanceEvent):
+
+    handlers = balance_update_handlers
+
     def __init__(self, event_data):
         pass
 
@@ -71,10 +80,16 @@ class BalanceUpdateWrapper(BinanceEvent):
 
 
 class OrderUpdateWrapper(BinanceEvent):
+
+    handlers = order_update_handlers
+
     def __init__(self, event_data):
         pass
 
 
 class ListStatus(BinanceEvent):
+
+    handlers = list_status_handlers
+
     def __init__(self, event_data):
         pass

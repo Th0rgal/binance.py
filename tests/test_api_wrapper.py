@@ -45,8 +45,8 @@ class TestQueries(unittest.IsolatedAsyncioTestCase):
         server_time = (await self.client.fetch_server_time())["serverTime"]
         self.assertTrue(server_time)
 
-    async def test_rate_limits(self):
-        await self.client.load_rate_limits()
+    async def test_load(self):
+        await self.client.loads()
         self.assertTrue(self.client.rate_limits)
 
     async def test_order_book(self):

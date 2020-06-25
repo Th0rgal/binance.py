@@ -2,7 +2,6 @@ import os, sys, toml, shutil, asyncio
 
 # to import binance.py from the dev directory
 sys.path.append("../")
-
 import binance
 
 
@@ -34,8 +33,10 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
-    await client.load_rate_limits()
+    await client.load()
+    print(client.symbols["ETHBTC"])
 
+    """
     order = await client.create_order(
         "ETHPAX",
         binance.Side.BUY.value,
@@ -44,6 +45,7 @@ async def main(loop):
         test=True,
     )
     print(order)
+    """
 
 
 if __name__ == "__main__":

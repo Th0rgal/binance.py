@@ -14,7 +14,22 @@
         <img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=shield"/>
     </a>
     <img src="https://img.shields.io/pypi/dm/binance.py"/>
+    <a href="https://th0rgal.gitbook.io/binance-py/" alt="Docs (gitbook)">
+        <img src="https://img.shields.io/badge/docs-gitbook-brightgreen"/>
+    </a>
+    
 </p>
+
+
+## Get binance.py
+To install the library, you can just run the following command:
+```console
+# Linux/macOS
+python3 -m pip install -U binance.py
+
+# Windows
+py -3 -m pip install -U binance.py
+```
 
 ## Why binance.py?
 The binance api is complex to grasp and using a wrapper saves time but also ensures that the right practices are adopted. Binance.py offers a modern and asynchronous solution.
@@ -32,11 +47,19 @@ The binance api is complex to grasp and using a wrapper saves time but also ensu
 ## Get started
 
 - [Generate an API Key](https://www.binance.com/en/support/articles/360002502072) and assign relevant permissions.
-- Install binance.py:
+- import binance, create a client and send your first test order:
+```python
+import binance
+
+client = binance.Client(API_KEY, API_SECRET)
+await client.load_rate_limits()
+
+order = await client.create_order(
+    "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
+)
+print(order)
 ```
-pip install binance.py
-```
-- Import binance, and check the [examples](https://github.com/Th0rgal/binance.py/tree/master/examples)
+- Check some [examples](https://github.com/Th0rgal/binance.py/tree/master/examples)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTh0rgal%2Fbinance.py?ref=badge_large)

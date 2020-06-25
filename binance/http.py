@@ -47,7 +47,6 @@ class HttpClient:
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
 
-        data = kwargs.get("data", None)
         if signed:
             content = ""
             location = "params" if "params" in kwargs else "data"

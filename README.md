@@ -52,7 +52,7 @@ The binance api is complex to grasp and using a wrapper saves time but also ensu
 import binance
 
 client = binance.Client(API_KEY, API_SECRET)
-await client.load_rate_limits()
+await client.load()
 
 order = await client.create_order(
     "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,

@@ -1,10 +1,9 @@
-import os, sys, toml, time, shutil, asyncio
+import os, sys, toml, shutil, asyncio
 
 # to import binance.py from the dev directory
 sys.path.append("../")
 
 import binance
-from binance import OrderType, Side
 
 
 class Config:
@@ -38,7 +37,11 @@ async def main(loop):
     await client.load_rate_limits()
 
     order = await client.create_order(
-        "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
+        "ETHPAX",
+        binance.Side.BUY.value,
+        binance.OrderType.MARKET.value,
+        quantity=1,
+        test=True,
     )
     print(order)
 

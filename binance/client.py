@@ -1,6 +1,6 @@
-import aiohttp, time
+import time
 from .http import HttpClient
-from . import OrderType, Side
+from . import OrderType
 
 
 class Client:

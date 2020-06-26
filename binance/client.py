@@ -1,16 +1,23 @@
-import time
 from .http import HttpClient, BinancePyError
+from .web_sockets import UserDataStream
 from . import OrderType
+
 
 class Client:
     def __init__(
-        self, api_key=None, api_secret=None, *, endpoint="https://api.binance.com"
+        self,
+        api_key=None,
+        api_secret=None,
+        *,
+        endpoint="https://api.binance.com",
+        user_agent=None,
     ):
         if api_secret + api_secret == 1:
             raise ValueError(
                 "You cannot only specify a non empty api_key or an api_secret."
             )
-        self.http = HttpClient(api_key, api_secret, endpoint)
+        self.http = HttpClient(api_key, api_secret, endpoint, user_agent)
+        self.user_agent = user_agent
         self.loaded = False
 
     async def load(self):
@@ -23,6 +30,10 @@ class Client:
         self.rate_limits = infos["rateLimits"]
 
         self.loaded = True
+
+    async def start_data_stream(self, endpoint="wss://stream.binance.com:9443"):
+        self.user_data_stream = UserDataStream(self, endpoint, self.user_agent)
+        await self.user_data_stream.connect()
 
     def assert_symbol_exists(self, symbol):
         if self.loaded:
@@ -127,7 +138,9 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data
-    async def fetch_klines(self, symbol, interval, start_time=None, end_time=None, limit=500):
+    async def fetch_klines(
+        self, symbol, interval, start_time=None, end_time=None, limit=500
+    ):
         self.assert_symbol(symbol)
         if not interval:
             raise ValueError("This query requires an interval.")
@@ -269,104 +282,6 @@ class Client:
         route = "/api/v3/order/test" if test else "/api/v3/order"
         return await self.http.send_api_call(route, "POST", data=params, signed=True)
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
-    async def query_order(
-        self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
-    ):
-        self.assert_symbol(symbol)
-        params = {"symbol": symbol}
-        if not order_id and not origin_client_order_id:
-            raise ValueError(
-                "This query requires an order_id or an origin_client_order_id."
-            )
-        if order_id:
-            params["orderId"] = order_id
-        if origin_client_order_id:
-            params["originClientOrderId"] = origin_client_order_id
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/order", params=params, signed=True,
-        )
-
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade
-    async def cancel_order(
-        self,
-        symbol,
-        order_id=None,
-        origin_client_order_id=None,
-        new_client_order_id=None,
-        receive_window=None,
-    ):
-        self.assert_symbol(symbol)
-        params = {"symbol": symbol}
-        if not order_id and not origin_client_order_id:
-            raise ValueError(
-                "This query requires an order_id or an origin_client_order_id."
-            )
-        if order_id:
-            params["orderId"] = order_id
-        if origin_client_order_id:
-            params["originClientOrderId"] = origin_client_order_id
-        if new_client_order_id:
-            params["newClientOrderId"] = origin_client_order_id
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/order", "DELETE", params=params, signed=True,
-        )
-
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
-    async def cancel_all_orders(self, symbol, receive_window=None):
-        self.assert_symbol(symbol)
-        params = {"symbol": symbol}
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/openOrders", "DELETE", params=params, signed=True,
-        )
-
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
-    async def fetch_open_orders(self, symbol, receive_window=None):
-        self.assert_symbol(symbol)
-        params = {"symbol": symbol}
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/openOrders", params=params, signed=True,
-        )
-
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data
-    async def fetch_all_orders(
-        self, symbol, order_id=None, start_time=None, end_time=None, limit=500, receive_window=None
-    ):
-        self.assert_symbol(symbol)
-        if limit == 500:
-            params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
-            params = {"symbol": symbol, "limit": limit}
-        else:
-            raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
-            )
-
-        if order_id:
-            params["orderId"] = order_id
-        if start_time:
-            params["startTime"] = start_time
-        if end_time:
-            params["endTime"] = end_time
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/allOrders", params=params, signed=True,
-        )
-
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-oco-trade
     async def create_oco(
         self,
@@ -421,8 +336,82 @@ class Client:
             "/api/v3/order/oco", "POST", data=params, signed=True
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
+    async def query_order( # lgtm [py/similar-function]
+        self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
+    ):
+        self.assert_symbol(symbol)
+        params = {"symbol": symbol}
+        if not order_id and not origin_client_order_id:
+            raise ValueError(
+                "This query requires an order_id or an origin_client_order_id."
+            )
+        if order_id:
+            params["orderId"] = order_id
+        if origin_client_order_id:
+            params["originClientOrderId"] = origin_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/order", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
+    async def query_oco( # lgtm [py/similar-function]
+        self,
+        symbol,
+        order_list_id=None,
+        origin_client_order_id=None,
+        receive_window=None,
+    ):
+        self.assert_symbol(symbol)
+        params = {"symbol": symbol}
+        if not order_list_id and not origin_client_order_id:
+            raise ValueError(
+                "This query requires an order_id or an origin_client_order_id."
+            )
+        if order_list_id:
+            params["orderListId"] = order_list_id
+        if origin_client_order_id:
+            params["originClientOrderId"] = origin_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/orderList", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade
+    async def cancel_order( # lgtm [py/similar-function]
+        self,
+        symbol,
+        order_id=None,
+        origin_client_order_id=None,
+        new_client_order_id=None,
+        receive_window=None,
+    ):
+        self.assert_symbol(symbol)
+        params = {"symbol": symbol}
+        if not order_id and not origin_client_order_id:
+            raise ValueError(
+                "This query requires an order_id or an origin_client_order_id."
+            )
+        if order_id:
+            params["orderId"] = order_id
+        if origin_client_order_id:
+            params["originClientOrderId"] = origin_client_order_id
+        if new_client_order_id:
+            params["newClientOrderId"] = origin_client_order_id
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/order", "DELETE", params=params, signed=True,
+        )
+
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-oco-trade
-    async def cancel_oco(
+    async def cancel_oco( # lgtm [py/similar-function]
         self,
         symbol,
         order_list_id=None,
@@ -449,33 +438,74 @@ class Client:
             "/api/v3/order/oco", "DELETE", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
-    async def query_oco(
-        self,
-        symbol,
-        order_list_id=None,
-        origin_client_order_id=None,
-        receive_window=None,
-    ):
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
+    async def cancel_all_orders(self, symbol, receive_window=None):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
-        if not order_list_id and not origin_client_order_id:
-            raise ValueError(
-                "This query requires an order_id or an origin_client_order_id."
-            )
-        if order_list_id:
-            params["orderListId"] = order_list_id
-        if origin_client_order_id:
-            params["originClientOrderId"] = origin_client_order_id
         if receive_window:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/orderList", params=params, signed=True,
+            "/api/v3/openOrders", "DELETE", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
+    async def fetch_open_orders(self, symbol, receive_window=None):
+        self.assert_symbol(symbol)
+        params = {"symbol": symbol}
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/openOrders", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-open-oco-user_data
+    async def fetch_open_oco(self, receive_window=None):
+        params = {}
+
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/openOrderList", params=params, signed=True,
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data
+    async def fetch_all_orders(
+        self,
+        symbol,
+        order_id=None,
+        start_time=None,
+        end_time=None,
+        limit=500,
+        receive_window=None,
+    ):
+        self.assert_symbol(symbol)
+        if limit == 500:
+            params = {"symbol": symbol}
+        elif limit > 0 and limit < 1000:
+            params = {"symbol": symbol, "limit": limit}
+        else:
+            raise ValueError(
+                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+            )
+
+        if order_id:
+            params["orderId"] = order_id
+        if start_time:
+            params["startTime"] = start_time
+        if end_time:
+            params["endTime"] = end_time
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/api/v3/allOrders", params=params, signed=True,
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-all-oco-user_data
-    async def query_all_oco(
+    async def fetch_all_oco(
         self,
         from_id=None,
         start_time=None,
@@ -500,17 +530,7 @@ class Client:
             "/api/v3/allOrderList", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-open-oco-user_data
-    async def query_open_oco(self, receive_window=None):
-        params = {}
-
-        if receive_window:
-            params["recvWindow"] = receive_window
-
-        return await self.http.send_api_call(
-            "/api/v3/openOrderList", params=params, signed=True,
-        )
-
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data
     async def fetch_account_information(self, receive_window=None):
         params = {}
 
@@ -521,6 +541,7 @@ class Client:
             "/api/v3/account", params=params, signed=True,
         )
 
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-trade-list-user_data
     async def fetch_account_trade_list(
         self,
         symbol,
@@ -546,4 +567,26 @@ class Client:
             params["recvWindow"] = receive_window
         return await self.http.send_api_call(
             "/api/v3/myTrades", params=params, signed=True,
+        )
+
+    # USER DATA STREAM ENDPOINTS
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#create-a-listenkey
+    async def create_listen_key(self):
+        return await self.http.send_api_call("/api/v3/userDataStream", "POST")
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#close-a-listenkey
+    async def keep_alive_listen_key(self, listen_key):
+        if not listen_key:
+            raise ValueError("This query requires a listen_key.")
+        return await self.http.send_api_call(
+            "/api/v3/userDataStream", "PUT", params={"listenKey": listen_key}
+        )
+
+    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#close-a-listenkey
+    async def close_listen_key(self, listen_key):
+        if not listen_key:
+            raise ValueError("This query requires a listen_key.")
+        return await self.http.send_api_call(
+            "/api/v3/userDataStream", "DELETE", params={"listenKey": listen_key}
         )

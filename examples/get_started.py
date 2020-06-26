@@ -33,8 +33,9 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
-    await client.load()
-    print(client.symbols["ETHBTC"])
+
+    await client.start_data_stream()
+    #print(client.symbols["ETHBTC"])
 
     """
     order = await client.create_order(

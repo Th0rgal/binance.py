@@ -1,11 +1,14 @@
-import aiohttp, hashlib, hmac, time
 from urllib.parse import urlencode
 from . import __version__
 import logging
+import aiohttp
+import hashlib
+import hmac
+import time
 
 
 class HttpClient:
-    def __init__(self, api_key, api_secret, endpoint, user_agent=None):
+    def __init__(self, api_key, api_secret, endpoint, user_agent):
         self.api_key = api_key
         self.api_secret = api_secret
         self.endpoint = endpoint

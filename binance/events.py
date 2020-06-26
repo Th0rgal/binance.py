@@ -29,7 +29,7 @@ def wrap_event(event_data):
 
     events_by_name = {
         "outboundAccountInfo": OutboundAccountInfoWrapper,
-        "outboundAccountInfo": OutboundAccountPositionWrapper,
+        "outboundAccountPosition": OutboundAccountPositionWrapper,
         "balanceUpdate": BalanceUpdateWrapper,
         "orderUpdate": OrderUpdateWrapper,
         "listStatus": ListStatus,

@@ -13,7 +13,7 @@ class UserDataStream:
         if user_agent:
             self.user_agent = user_agent
         else:
-            self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
+            self.user_agent = f"binance.py (https://git.io/binance.py, {__version__})"
 
     async def _heartbeat(
         self, listen_key, interval=60 * 30

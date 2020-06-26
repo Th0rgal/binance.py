@@ -12,7 +12,7 @@ setuptools.setup(
     description="A python3 binance API wrapper powered by modern technologies such as asyncio",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://git.io/binance",
+    url="https://git.io/binance.py",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

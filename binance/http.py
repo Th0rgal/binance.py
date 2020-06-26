@@ -16,7 +16,7 @@ class HttpClient:
         if user_agent:
             self.user_agent = user_agent
         else:
-            self.user_agent = f"binance.py (https://git.io/binance, {__version__})"
+            self.user_agent = f"binance.py (https://git.io/binance.py, {__version__})"
 
     def _generate_signature(self, data):
         return hmac.new(

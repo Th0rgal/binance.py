@@ -1,7 +1,10 @@
-import aiohttp, hashlib, hmac, time
 from urllib.parse import urlencode
 from . import __version__
 import logging
+import aiohttp
+import hashlib
+import hmac
+import time
 
 
 class HttpClient:
@@ -53,7 +56,6 @@ class HttpClient:
         if send_api_key:
             kwargs["headers"]["X-MBX-APIKEY"] = self.api_key
 
-        data = kwargs.get("data", None)
         if signed:
             content = ""
             location = "params" if "params" in kwargs else "data"

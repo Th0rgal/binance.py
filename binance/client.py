@@ -1,4 +1,3 @@
-import time
 from .http import HttpClient, BinancePyError
 from .web_sockets import UserDataStream
 from . import OrderType
@@ -573,16 +572,8 @@ class Client:
     # USER DATA STREAM ENDPOINTS
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#create-a-listenkey
-    async def start_user_data_stream(self):
+    async def create_listen_key(self):
         return await self.http.send_api_call("/api/v3/userDataStream", "POST")
-
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#pingkeep-alive-a-listenkey
-    async def start_user_data_stream(self, listen_key):
-        if not listen_key:
-            raise ValueError("This query requires a listen_key.")
-        return await self.http.send_api_call(
-            "/api/v3/userDataStream", "PUT", params={"listenKey": listen_key}
-        )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#close-a-listenkey
     async def keep_alive_listen_key(self, listen_key):
@@ -599,4 +590,3 @@ class Client:
         return await self.http.send_api_call(
             "/api/v3/userDataStream", "DELETE", params={"listenKey": listen_key}
         )
-

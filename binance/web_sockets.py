@@ -1,6 +1,10 @@
 from . import __version__
-import aiohttp, asyncio, logging, json
-from .events import wrap_event, fire_event
+from .events import wrap_event
+import aiohttp
+import asyncio
+import logging
+import json
+
 
 class UserDataStream:
     def __init__(self, client, endpoint, user_agent):
@@ -21,7 +25,7 @@ class UserDataStream:
 
     async def connect(self):
         session = aiohttp.ClientSession()
-        listen_key = (await self.client.start_user_data_stream())["listenKey"]
+        listen_key = (await self.client.create_listen_key())["listenKey"]
         web_socket = await session.ws_connect(f"{self.endpoint}/ws/{self.listen_key}")
         asyncio.ensure_future(self._heartbeat(listen_key))
 
@@ -31,7 +35,7 @@ class UserDataStream:
                 logging.error(
                     "Trying to receive something while the websocket is closed! Trying to reconnect."
                 )
-                await self.connect(url)
+                await self.connect()
             elif msg.type is aiohttp.WSMsgType.ERROR:
                 logging.error(
                     f"Something went wrong with the websocket, reconnecting..."

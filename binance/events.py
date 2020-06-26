@@ -49,7 +49,7 @@ class BinanceEventWrapper:
 # ACCOUNT UPDATE
 
 
-class OutboundAccountInfoWrapper(BinanceEvent):
+class OutboundAccountInfoWrapper(BinanceEventWrapper):
 
     handlers = outbound_account_info_handlers
 
@@ -66,10 +66,10 @@ class OutboundAccountInfoWrapper(BinanceEvent):
         self.balances = dict(
             map(lambda x: x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"]
         )
-        self.account_permissions = x["P"]
+        self.account_permissions = event_data["P"]
 
 
-class OutboundAccountPositionWrapper(BinanceEvent):
+class OutboundAccountPositionWrapper(BinanceEventWrapper):
 
     handlers = outbound_account_position_handlers
 
@@ -84,7 +84,7 @@ class OutboundAccountPositionWrapper(BinanceEvent):
 # BALANCE UPDATE
 
 
-class BalanceUpdateWrapper(BinanceEvent):
+class BalanceUpdateWrapper(BinanceEventWrapper):
 
     handlers = balance_update_handlers
 
@@ -98,7 +98,7 @@ class BalanceUpdateWrapper(BinanceEvent):
 # ORDER UPDATE
 
 
-class OrderUpdateWrapper(BinanceEvent):
+class OrderUpdateWrapper(BinanceEventWrapper):
 
     handlers = order_update_handlers
 
@@ -136,7 +136,7 @@ class OrderUpdateWrapper(BinanceEvent):
         self.quote_order_quantity = event_data["Q"]
 
 
-class ListStatus(BinanceEvent):
+class ListStatus(BinanceEventWrapper):
 
     handlers = list_status_handlers
 
@@ -148,7 +148,7 @@ class ListStatus(BinanceEvent):
         self.list_status_type = event_data["l"]
         self.list_order_status = event_data["L"]
         self.list_reject_reason = event_data["r"]
-        self.list_client_order_id = event["C"]
+        self.list_client_order_id = event_data["C"]
         self.orders = dict(
             map(lambda x: x["s"], {"orderid": x["i"], "clientorderid": x["c"]}),
             event_data["O"],

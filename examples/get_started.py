@@ -34,10 +34,6 @@ async def main(loop):
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
 
-    await client.start_data_stream()
-    #print(client.symbols["ETHBTC"])
-
-    """
     order = await client.create_order(
         "ETHPAX",
         binance.Side.BUY.value,
@@ -46,7 +42,6 @@ async def main(loop):
         test=True,
     )
     print(order)
-    """
 
 
 if __name__ == "__main__":

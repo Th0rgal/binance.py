@@ -26,7 +26,7 @@ class UserDataStream:
     async def connect(self):
         session = aiohttp.ClientSession()
         listen_key = (await self.client.create_listen_key())["listenKey"]
-        web_socket = await session.ws_connect(f"{self.endpoint}/ws/{self.listen_key}")
+        web_socket = await session.ws_connect(f"{self.endpoint}/ws/{listen_key}")
         asyncio.ensure_future(self._heartbeat(listen_key))
 
         while True:

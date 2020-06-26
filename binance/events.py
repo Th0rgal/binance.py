@@ -31,10 +31,9 @@ def wrap_event(event_data):
         "outboundAccountInfo": OutboundAccountInfoWrapper,
         "outboundAccountPosition": OutboundAccountPositionWrapper,
         "balanceUpdate": BalanceUpdateWrapper,
-        "orderUpdate": OrderUpdateWrapper,
+        "executionReport": OrderUpdateWrapper,
         "listStatus": ListStatus,
     }
-
     return events_by_name[event_data["e"]](event_data)
 
 
@@ -64,7 +63,7 @@ class OutboundAccountInfoWrapper(BinanceEventWrapper):
         self.can_deposit = event_data["D"]
         self.last_update = event_data["u"]
         self.balances = dict(
-            map(lambda x: x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"]
+            map(lambda x: (x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"])
         )
         self.account_permissions = event_data["P"]
 
@@ -77,7 +76,7 @@ class OutboundAccountPositionWrapper(BinanceEventWrapper):
         super().__init__(event_data)
         self.last_update = event_data["u"]
         self.balances = dict(
-            map(lambda x: x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"]
+            map(lambda x: (x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"])
         )
 
 
@@ -115,8 +114,8 @@ class OrderUpdateWrapper(BinanceEventWrapper):
         self.iceberg_quantity = event_data["F"]
         self.order_list_id = event_data["g"]
         self.original_client_id = event_data["C"]
-        self.current_execution_type = event_data["x"]
-        self.current_order_status = event_data["X"]
+        self.execution_type = event_data["x"]
+        self.order_status = event_data["X"]
         self.order_reject_reason = event_data["r"]
         self.order_id = event_data["i"]
         self.last_executed_quantity = event_data["l"]

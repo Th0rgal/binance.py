@@ -38,11 +38,15 @@ The binance api is complex to grasp and using a wrapper saves time but also ensu
 - Covers general endpoints (test connectivity and get exchange informations)
 - Covers market data endpoints
 - Covers Account endpoints (create and manage orders)
+- Covers user data stream (receive real time updates)
 - Async support
 - Completely free and without limitations
 
 ## What it does not
-- Binance.py does not manage user data stream (used to receive real time updates). This feature will be added and will allow you to register events for withdrawals or order updates.
+- Binance.py does not cover the withdraw API
+- Binance.py does not cover the margin trading API
+> If you need these features, don't open an issue to ask me to implement them
+
 
 ## Get started
 

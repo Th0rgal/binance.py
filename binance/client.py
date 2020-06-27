@@ -1,6 +1,7 @@
 from .http import HttpClient, BinancePyError
 from .web_sockets import UserDataStream
 from . import OrderType
+from enum import Enum
 
 
 class Client:
@@ -46,6 +47,12 @@ class Client:
         if not symbol:
             raise ValueError("This query requires a symbol.")
         self.assert_symbol_exists(symbol)
+
+    # keep support for hardcoded string but allow enums usage
+    def enum_to_value(self, enum):
+        if isinstance(enum, Enum):
+            enum = enum.value
+        return enum
 
     # GENERAL ENDPOINTS
 
@@ -142,6 +149,7 @@ class Client:
         self, symbol, interval, start_time=None, end_time=None, limit=500
     ):
         self.assert_symbol(symbol)
+        interval = self.enum_to_value(interval)
         if not interval:
             raise ValueError("This query requires an interval.")
         if limit == 500:
@@ -218,11 +226,13 @@ class Client:
         new_client_order_id=None,
         stop_price=None,
         iceberg_quantity=None,
-        new_order_response_type=None,
+        response_type=None,
         receive_window=None,
         test=False,
     ):
         self.assert_symbol(symbol)
+        side = self.enum_to_value(side)
+        order_type = self.enum_to_value(order_type)
         if not side:
             raise ValueError("This query requires a side.")
         if not type:
@@ -230,11 +240,11 @@ class Client:
         params = {"symbol": symbol, "side": side, "type": order_type}
 
         if time_in_force:
-            params["timeInForce"] = time_in_force
+            params["timeInForce"] = self.enum_to_value(time_in_force)
         elif order_type in [
-            OrderType.LIMIT,
-            OrderType.STOP_LOSS_LIMIT,
-            OrderType.TAKE_PROFIT_LIMIT,
+            OrderType.LIMIT.value,
+            OrderType.STOP_LOSS_LIMIT.value,
+            OrderType.TAKE_PROFIT_LIMIT.value,
         ]:
             raise ValueError("This order type requires a time_in_force.")
 
@@ -252,10 +262,10 @@ class Client:
         if price:
             params["price"] = price
         elif order_type in [
-            OrderType.LIMIT,
-            OrderType.STOP_LOSS_LIMIT,
-            OrderType.TAKE_PROFIT_LIMIT,
-            OrderType.LIMIT_MAKER,
+            OrderType.LIMIT.value,
+            OrderType.STOP_LOSS_LIMIT.value,
+            OrderType.TAKE_PROFIT_LIMIT.value,
+            OrderType.LIMIT_MAKER.value,
         ]:
             raise ValueError("This order type requires a price.")
 
@@ -265,17 +275,17 @@ class Client:
         if stop_price:
             params["stopPrice"] = stop_price
         elif order_type in [
-            OrderType.STOP_LOSS,
-            OrderType.STOP_LOSS_LIMIT,
-            OrderType.TAKE_PROFIT,
-            OrderType.TAKE_PROFIT_LIMIT,
+            OrderType.STOP_LOSS.value,
+            OrderType.STOP_LOSS_LIMIT.value,
+            OrderType.TAKE_PROFIT.value,
+            OrderType.TAKE_PROFIT_LIMIT.value,
         ]:
             raise ValueError("This order type requires a stop_price.")
 
         if iceberg_quantity:
             params["icebergQty"] = iceberg_quantity
-        if new_order_response_type:
-            params["newOrderRespType"] = new_order_response_type
+        if response_type:
+            params["newOrderRespType"] = response_type
         if receive_window:
             params["recvWindow"] = receive_window
 
@@ -300,6 +310,7 @@ class Client:
         receive_window=None,
     ):
         self.assert_symbol(symbol)
+        side = self.enum_to_value(side)
         if not side:
             raise ValueError("This query requires a side.")
         if not quantity:
@@ -337,7 +348,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
-    async def query_order( # lgtm [py/similar-function]
+    async def query_order(  # lgtm [py/similar-function]
         self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
     ):
         self.assert_symbol(symbol)
@@ -358,7 +369,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
-    async def query_oco( # lgtm [py/similar-function]
+    async def query_oco(  # lgtm [py/similar-function]
         self,
         symbol,
         order_list_id=None,
@@ -383,7 +394,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade
-    async def cancel_order( # lgtm [py/similar-function]
+    async def cancel_order(  # lgtm [py/similar-function]
         self,
         symbol,
         order_id=None,
@@ -411,7 +422,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-oco-trade
-    async def cancel_oco( # lgtm [py/similar-function]
+    async def cancel_oco(  # lgtm [py/similar-function]
         self,
         symbol,
         order_list_id=None,

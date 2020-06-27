@@ -61,6 +61,10 @@ class OrderType(Enum):
     TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT"
     LIMIT_MAKER = "LIMIT_MAKER"
 
+class ResponseType(Enum):
+    ACK = "ACK"
+    RESULT = "RESULT"
+    FULL = "FULL"
 
 # Order side (side)
 class Side(Enum):

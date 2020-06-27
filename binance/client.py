@@ -1,6 +1,7 @@
 from .http import HttpClient, BinancePyError
 from .web_sockets import UserDataStream
 from . import OrderType
+from .events import Events
 from enum import Enum
 
 
@@ -32,7 +33,8 @@ class Client:
 
         self.loaded = True
 
-    async def start_data_stream(self, endpoint="wss://stream.binance.com:9443"):
+    async def create_events_listener(self, endpoint="wss://stream.binance.com:9443"):
+        self.events = Events()
         self.user_data_stream = UserDataStream(self, endpoint, self.user_agent)
         await self.user_data_stream.connect()
 

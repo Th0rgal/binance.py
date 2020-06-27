@@ -38,15 +38,13 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
-    # we register the events
-    binance.events.order_update_handlers.append(on_order_update)
     # we load the client (this is not mandatory but it allows binance.py
     # to prevent you if you entered a wrong token name for example)
     await client.load()
     # we start the data stream
-    await client.start_data_stream()
-
-    
+    await client.create_events_listener()
+    # we register the events
+    client.events.order_update_handlers.append(on_order_update)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

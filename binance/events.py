@@ -18,30 +18,37 @@ class Handlers(list):
 #
 # events.order_update_handlers.append(my_order_update_listener)
 
-outbound_account_info_handlers = Handlers()
-outbound_account_position_handlers = Handlers()
-balance_update_handlers = Handlers()
-order_update_handlers = Handlers()
-list_status_handlers = Handlers()
 
+class Events:
+    def __init__(self):
+        self.outbound_account_info_handlers = Handlers()
+        self.outbound_account_position_handlers = Handlers()
+        self.balance_update_handlers = Handlers()
+        self.order_update_handlers = Handlers()
+        self.list_status_handlers = Handlers()
 
-def wrap_event(event_data):
+    def wrap_event(self, event_data):
 
-    events_by_name = {
-        "outboundAccountInfo": OutboundAccountInfoWrapper,
-        "outboundAccountPosition": OutboundAccountPositionWrapper,
-        "balanceUpdate": BalanceUpdateWrapper,
-        "executionReport": OrderUpdateWrapper,
-        "listStatus": ListStatus,
-    }
-    return events_by_name[event_data["e"]](event_data)
+        events_by_name = {
+            "outboundAccountInfo": (
+                OutboundAccountInfoWrapper,
+                self.outbound_account_info_handlers,
+            ),
+            "outboundAccountPosition": (
+                OutboundAccountPositionWrapper,
+                self.outbound_account_position_handlers,
+            ),
+            "balanceUpdate": (BalanceUpdateWrapper, self.balance_update_handlers),
+            "executionReport": (OrderUpdateWrapper, self.order_update_handlers),
+            "listStatus": (ListStatus, self.list_status_handlers),
+        }
+        wrapper, handlers = events_by_name[event_data["e"]]
+        return wrapper(event_data, handlers)
 
 
 class BinanceEventWrapper:
-
-    handlers = outbound_account_info_handlers
-
-    def __init__(self, event_data):
+    def __init__(self, event_data, handlers):
+        self.handlers = handlers
         self.event_time = event_data["E"]
 
     def fire(self):
@@ -52,11 +59,8 @@ class BinanceEventWrapper:
 
 
 class OutboundAccountInfoWrapper(BinanceEventWrapper):
-
-    handlers = outbound_account_info_handlers
-
-    def __init__(self, event_data):
-        super().__init__(event_data)
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
         self.maker_commission_rate = event_data["m"]
         self.taker_commission_rate = event_data["t"]
         self.buyer_commission_rate = event_data["b"]
@@ -72,11 +76,8 @@ class OutboundAccountInfoWrapper(BinanceEventWrapper):
 
 
 class OutboundAccountPositionWrapper(BinanceEventWrapper):
-
-    handlers = outbound_account_position_handlers
-
-    def __init__(self, event_data):
-        super().__init__(event_data)
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
         self.last_update = event_data["u"]
         self.balances = dict(
             map(lambda x: (x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"])
@@ -87,11 +88,8 @@ class OutboundAccountPositionWrapper(BinanceEventWrapper):
 
 
 class BalanceUpdateWrapper(BinanceEventWrapper):
-
-    handlers = balance_update_handlers
-
-    def __init__(self, event_data):
-        super().__init__(event_data)
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
         self.asset = event_data["a"]
         self.balance_delta = event_data["d"]
         self.clear_time = event_data["T"]
@@ -101,11 +99,8 @@ class BalanceUpdateWrapper(BinanceEventWrapper):
 
 
 class OrderUpdateWrapper(BinanceEventWrapper):
-
-    handlers = order_update_handlers
-
-    def __init__(self, event_data):
-        super().__init__(event_data)
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
         self.symbol = event_data["s"]
         self.client_order_id = event_data["c"]
         self.side = event_data["S"]
@@ -139,11 +134,8 @@ class OrderUpdateWrapper(BinanceEventWrapper):
 
 
 class ListStatus(BinanceEventWrapper):
-
-    handlers = list_status_handlers
-
-    def __init__(self, event_data):
-        super().__init__(event_data)
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
         self.symbol = event_data["s"]
         self.order_list_id = event_data["g"]
         self.contingency_type = event_data["c"]

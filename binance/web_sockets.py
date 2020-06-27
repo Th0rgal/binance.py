@@ -1,5 +1,4 @@
 from . import __version__
-from .events import wrap_event
 import aiohttp
 import asyncio
 import logging
@@ -41,5 +40,5 @@ class UserDataStream:
                     f"Something went wrong with the websocket, reconnecting..."
                 )
                 await self.connect()
-            event = wrap_event(json.loads(msg.data))
+            event = self.client.events.wrap_event(json.loads(msg.data))
             event.fire()

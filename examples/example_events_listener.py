@@ -1,6 +1,7 @@
 import os, sys, toml, shutil, asyncio
 
-# to import binance.py from the dev directory
+# to import binance.py from the dev directory, you can actually remove this line
+# if you just want to start your bot from this base
 sys.path.append("../")
 import binance
 

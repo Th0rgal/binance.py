@@ -410,7 +410,7 @@ class Client:
         stop_limit_price=None,
         stop_iceberg_quantity=None,
         stop_limit_time_in_force=None,
-        new_order_response_type=None,
+        response_type=None,
         receive_window=None,
     ):
         self.assert_symbol(symbol)
@@ -442,8 +442,8 @@ class Client:
             params["stopIcebergQty"] = stop_iceberg_quantity
         if stop_limit_time_in_force:
             params["stopLimitTimeInForce"] = stop_limit_time_in_force
-        if new_order_response_type:
-            params["newOrderRespType"] = new_order_response_type
+        if response_type:
+            params["newOrderRespType"] = response_type
         if receive_window:
             params["recvWindow"] = receive_window
 

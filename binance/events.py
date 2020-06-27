@@ -38,6 +38,9 @@ def wrap_event(event_data):
 
 
 class BinanceEventWrapper:
+
+    handlers = outbound_account_info_handlers
+
     def __init__(self, event_data):
         self.event_time = event_data["E"]
 
@@ -149,6 +152,6 @@ class ListStatus(BinanceEventWrapper):
         self.list_reject_reason = event_data["r"]
         self.list_client_order_id = event_data["C"]
         self.orders = dict(
-            map(lambda x: x["s"], {"orderid": x["i"], "clientorderid": x["c"]}),
+            map(lambda x: (x["s"], {"orderid": x["i"], "clientorderid": x["c"]})),
             event_data["O"],
         )

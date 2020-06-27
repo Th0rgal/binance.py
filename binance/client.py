@@ -293,7 +293,7 @@ class Client:
         return await self.http.send_api_call(route, "POST", data=params, signed=True)
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
-    async def query_order(  # lgtm [py/similar-function]
+    async def fetch_order(  # lgtm [py/similar-function]
         self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
     ):
         self.assert_symbol(symbol)
@@ -452,7 +452,7 @@ class Client:
         )
 
     # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
-    async def query_oco(  # lgtm [py/similar-function]
+    async def fetch_oco(  # lgtm [py/similar-function]
         self,
         symbol,
         order_list_id=None,

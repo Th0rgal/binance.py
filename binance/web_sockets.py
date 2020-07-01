@@ -34,11 +34,11 @@ class UserDataStream:
                 logging.error(
                     "Trying to receive something while the websocket is closed! Trying to reconnect."
                 )
-                return await self.connect()
+                asyncio.ensure_future(self.connect)
             elif msg.type is aiohttp.WSMsgType.ERROR:
                 logging.error(
                     f"Something went wrong with the websocket, reconnecting..."
                 )
-                return await self.connect()
+                asyncio.ensure_future(self.connect)
             event = self.client.events.wrap_event(json.loads(msg.data))
             event.fire()

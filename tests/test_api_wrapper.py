@@ -1,4 +1,4 @@
-import sys, unittest, logging, asyncio, time, toml, os
+import sys, unittest, logging, asyncio, time, toml, os, shutil
 
 sys.path.append("../")
 import binance

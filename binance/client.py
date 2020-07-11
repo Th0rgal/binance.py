@@ -1,5 +1,5 @@
 from .http import HttpClient, BinancePyError
-from .web_sockets import UserDataStream
+from .web_sockets import UserEventsDataStream
 from . import OrderType
 from .events import Events
 from enum import Enum
@@ -33,10 +33,12 @@ class Client:
 
         self.loaded = True
 
-    async def create_events_listener(self, endpoint="wss://stream.binance.com:9443"):
+    def load_events_module(self):
         self.events = Events()
-        self.user_data_stream = UserDataStream(self, endpoint, self.user_agent)
-        await self.user_data_stream.connect()
+
+    async def start_user_events_listener(self, endpoint="wss://stream.binance.com:9443"):
+        self.user_data_stream = UserEventsDataStream(self, endpoint, self.user_agent)
+        await self.user_data_stream.start()
 
     def assert_symbol_exists(self, symbol):
         if self.loaded:

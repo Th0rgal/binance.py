@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 # based on: https://stackoverflow.com/a/2022629/10144963
 class Handlers(list):
     def __call__(self, *args, **kwargs):
@@ -21,29 +23,22 @@ class Handlers(list):
 
 class Events:
     def __init__(self):
-        self.outbound_account_info_handlers = Handlers()
-        self.outbound_account_position_handlers = Handlers()
-        self.balance_update_handlers = Handlers()
-        self.order_update_handlers = Handlers()
-        self.list_status_handlers = Handlers()
+        self.handlers = defaultdict(Handlers)
+    
+    def register(self, listener, event_type):
+        self.handlers[event_type].append(listener)
 
     def wrap_event(self, event_data):
-
-        events_by_name = {
-            "outboundAccountInfo": (
-                OutboundAccountInfoWrapper,
-                self.outbound_account_info_handlers,
-            ),
-            "outboundAccountPosition": (
-                OutboundAccountPositionWrapper,
-                self.outbound_account_position_handlers,
-            ),
-            "balanceUpdate": (BalanceUpdateWrapper, self.balance_update_handlers),
-            "executionReport": (OrderUpdateWrapper, self.order_update_handlers),
-            "listStatus": (ListStatus, self.list_status_handlers),
+        wrapper_by_type = {
+            "outboundAccountInfo": OutboundAccountInfoWrapper,
+            "outboundAccountPosition": OutboundAccountPositionWrapper,
+            "balanceUpdate": BalanceUpdateWrapper,
+            "executionReport": OrderUpdateWrapper, 
+            "listStatus": ListStatus
         }
-        wrapper, handlers = events_by_name[event_data["e"]]
-        return wrapper(event_data, handlers)
+        event_type = event_data["e"]
+        wrapper = wrapper_by_type[event_type]
+        return wrapper(event_data, self.handlers[event_type])
 
 
 class BinanceEventWrapper:
@@ -52,7 +47,8 @@ class BinanceEventWrapper:
         self.event_time = event_data["E"]
 
     def fire(self):
-        self.handlers.__call__(self)
+        if self.handlers:
+            self.handlers.__call__(self)
 
 
 # ACCOUNT UPDATE

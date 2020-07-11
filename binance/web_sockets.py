@@ -30,6 +30,20 @@ class EventsDataStream:
             event = self.client.events.wrap_event(json.loads(msg.data))
             event.fire()
 
+class MarketEventsDataStream(EventsDataStream):
+
+    def __init__(self, client, endpoint, user_agent):
+        super().__init__(client, endpoint, user_agent)
+
+    async def _heartbeat(
+        self, listen_key
+    ):
+        await self.web_socket.send_str("pong")
+
+    async def start(self):
+        async with aiohttp.ClientSession() as session:
+            self.web_socket = await session.ws_connect(f"{self.endpoint}/stream?streams=")
+            await self._handle_messages(self.web_socket)
 
 class UserEventsDataStream(EventsDataStream):
 

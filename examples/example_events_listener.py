@@ -45,7 +45,7 @@ async def main(loop):
     # we load the events module
     client.load_events_module()
     # we register the events
-    client.events.order_update_handlers.append(on_order_update)
+    client.events.register(on_order_update, "executionReport")
     # we start the data stream
     loop.create_task(client.start_user_events_listener())
 

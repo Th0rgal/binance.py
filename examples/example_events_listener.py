@@ -48,10 +48,9 @@ async def main(loop):
     client.events.order_update_handlers.append(on_order_update)
     # we start the data stream
     loop.create_task(client.start_user_events_listener())
-    # because we want the program to run
-    while True:
-        await asyncio.sleep(10)
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(loop))
+    loop.create_task(main(loop))
+    # because we don't want to exit but wait for events
+    loop.run_forever()

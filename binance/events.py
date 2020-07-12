@@ -24,8 +24,13 @@ class Handlers(list):
 class Events:
     def __init__(self):
         self.handlers = defaultdict(Handlers)
-    
-    def register(self, listener, event_type):
+        self.registered_streams = set()
+
+    def register_user_event(self, listener, event_type):
+        self.handlers[event_type].append(listener)
+
+    def register_event(self, listener, event_type):
+        self.registered_streams.add(event_type)
         self.handlers[event_type].append(listener)
 
     def wrap_event(self, event_data):
@@ -33,8 +38,8 @@ class Events:
             "outboundAccountInfo": OutboundAccountInfoWrapper,
             "outboundAccountPosition": OutboundAccountPositionWrapper,
             "balanceUpdate": BalanceUpdateWrapper,
-            "executionReport": OrderUpdateWrapper, 
-            "listStatus": ListStatus
+            "executionReport": OrderUpdateWrapper,
+            "listStatus": ListStatus,
         }
         event_type = event_data["e"]
         wrapper = wrapper_by_type[event_type]

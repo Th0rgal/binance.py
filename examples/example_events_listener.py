@@ -42,12 +42,10 @@ async def main(loop):
     # we load the client (this is not mandatory but it allows binance.py
     # to prevent you if you entered a wrong token name for example)
     await client.load()
-    # we load the events module
-    client.load_events_module()
     # we register the events
-    client.events.register(on_order_update, "executionReport")
+    client.events.register_event(on_order_update, "ethbtc@bookTicker")
     # we start the data stream
-    loop.create_task(client.start_user_events_listener())
+    loop.create_task(client.start_market_events_listener())
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

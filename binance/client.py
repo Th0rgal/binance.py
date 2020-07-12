@@ -1,5 +1,6 @@
-from .http import HttpClient, BinancePyError
-from .web_sockets import UserEventsDataStream
+from .http import HttpClient
+from .errors import BinancePyError
+from .web_sockets import UserEventsDataStream, MarketEventsDataStream
 from . import OrderType
 from .events import Events
 from enum import Enum
@@ -33,8 +34,11 @@ class Client:
 
         self.loaded = True
 
-    def load_events_module(self):
-        self.events = Events()
+    @property
+    def events(self):
+        if not hasattr(self, "_events"):
+            self._events = Events()
+        return self._events
 
     async def start_user_events_listener(self, endpoint="wss://stream.binance.com:9443"):
         self.user_data_stream = UserEventsDataStream(self, endpoint, self.user_agent)

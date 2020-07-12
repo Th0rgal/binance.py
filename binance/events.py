@@ -41,19 +41,23 @@ class Events:
             "balanceUpdate": BalanceUpdateWrapper,
             "executionReport": OrderUpdateWrapper,
             "listStatus": ListStatus,
+            "aggTrade": AggregateTradeWrapper,
+            "trade": TradeWrapper,
+            "kline": KlineWrapper,
+            "miniTicker": SymbolMiniTickerWrapper,
+            "24hrMiniTicker": SymbolMiniTickerWrapper,
         }
 
-        if "e" in event_data:
-            event_type = event_data["e"]
-        elif "stream" in event_data:
-            event_type = event_data["stream"]
-            event_data = event_data["data"]
+        stream = event_data["stream"] if "stream" in event_data else False
+        event_type = event_data["e"] if "e" in event_data else stream
         if "@" in event_type:
             event_type = event_type.split("@")[1]
+        if event_type.startswith("kline_"):
+            event_type = "kline"
         if event_type not in wrapper_by_type:
             raise UnknownEventType()
         wrapper = wrapper_by_type[event_type]
-        return wrapper(event_data, self.handlers[event_type])
+        return wrapper(event_data, self.handlers[stream if stream else event_type])
 
 
 class BinanceEventWrapper:
@@ -64,6 +68,78 @@ class BinanceEventWrapper:
     def fire(self):
         if self.handlers:
             self.handlers.__call__(self)
+
+
+class AggregateTradeWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        self.aggregated_trade_id = event_data["a"]
+        self.price = event_data["p"]
+        self.quantity = event_data["q"]
+        self.first_trade_id = event_data["f"]
+        self.last_trade_id = event_data["l"]
+        self.trade_time = event_data["T"]
+        self.buyer_is_marker = event_data["m"]
+        self.ignore = event_data["M"]
+
+
+class TradeWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        self.trade_id = event_data["t"]
+        self.price = event_data["p"]
+        self.quantity = event_data["q"]
+        self.buyer_order_id = event_data["b"]
+        self.seller_order_id = event_data["a"]
+        self.trade_time = event_data["T"]
+        self.buyer_is_marker = event_data["m"]
+        self.ignore = event_data["M"]
+
+
+class KlineWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        kline = event_data["k"]
+        self.kline_start_time = kline["t"]
+        self.kline_close_time = kline["T"]
+        self.kline_symbol = kline["s"]
+        self.kline_interval = kline["i"]
+        self.kline_first_trade_id = kline["f"]
+        self.kline_last_trade_id = kline["L"]
+        self.kline_open_price = kline["o"]
+        self.kline_close_price = kline["c"]
+        self.kline_high_price = kline["h"]
+        self.kline_low_price = kline["l"]
+        self.kline_base_asset_volume = kline["v"]
+        self.kline_trades_number = kline["n"]
+        self.kline_closed = kline["x"]
+        self.kline_quote_asset_volume = kline["q"]
+        self.kline_taker_buy_base_asset_volume = kline["V"]
+        self.kline_taker_buy_quote_asset_volume = kline["Q"]
+        self.kline_ignore = kline["B"]
+
+
+class SymbolMiniTickerWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        self.close_price = event_data["c"]
+        self.open_price = event_data["o"]
+        self.high_price = event_data["h"]
+        self.low_price = event_data["l"]
+        self.total_traded_base_asset_volume = event_data["v"]
+        self.total_traded_quote_asset_volume = event_data["q"]
 
 
 # ACCOUNT UPDATE

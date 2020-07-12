@@ -46,10 +46,15 @@ class MarketEventsDataStream(EventsDataStream):
             await self._handle_messages(self.web_socket)
 
     def _handle_event(self, content):
+        if "stream" in content:
+            stream_name = content["stream"]
+            content = content["data"]
         if isinstance(content, list):
             for event_content in content:
+                event_content["stream"] = stream_name
                 self.client.events.wrap_event(event_content).fire()
         else:
+            content["stream"] = stream_name
             self.client.events.wrap_event(content).fire()
 
 

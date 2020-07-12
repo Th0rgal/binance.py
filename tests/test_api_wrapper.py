@@ -72,5 +72,6 @@ class TestQueries(unittest.IsolatedAsyncioTestCase):
         special_limit = await self.client.fetch_old_trades_list(symbol, 1)
         self.assertTrue(special_limit)
 
+
 if __name__ == "__main__":
     unittest.main()

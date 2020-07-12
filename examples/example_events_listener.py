@@ -32,7 +32,10 @@ class Config:
 def on_order_update(event):
     # will print: The SELL order of 19.72000000×PAXUSDT has been CANCELED!
     # or: The SELL order of 19.72000000×PAXUSDT has been NEW!
-    print(f"The {event.side} order of {event.order_quantity}×{event.symbol} has been {event.execution_type}!")
+    print(
+        f"The {event.side} order of {event.order_quantity}×{event.symbol} has been {event.execution_type}!"
+    )
+
 
 async def main(loop):
     # /!\ Never hardcode your api secrets, prefer to use a config (I love toml, yaml is fine, json works)
@@ -46,6 +49,7 @@ async def main(loop):
     client.events.register_event(on_order_update, "ethbtc@bookTicker")
     # we start the data stream
     loop.create_task(client.start_market_events_listener())
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

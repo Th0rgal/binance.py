@@ -79,4 +79,3 @@ class HttpClient:
                 method, self.endpoint + path, **kwargs,
             ) as response:
                 return await self.handle_errors(response)
-

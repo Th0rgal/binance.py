@@ -40,12 +40,18 @@ class Client:
             self._events = Events()
         return self._events
 
-    async def start_user_events_listener(self, endpoint="wss://stream.binance.com:9443"):
+    async def start_user_events_listener(
+        self, endpoint="wss://stream.binance.com:9443"
+    ):
         self.user_data_stream = UserEventsDataStream(self, endpoint, self.user_agent)
         await self.user_data_stream.start()
 
-    async def start_market_events_listener(self, endpoint="wss://stream.binance.com:9443"):
-        self.market_data_stream = MarketEventsDataStream(self, endpoint, self.user_agent)
+    async def start_market_events_listener(
+        self, endpoint="wss://stream.binance.com:9443"
+    ):
+        self.market_data_stream = MarketEventsDataStream(
+            self, endpoint, self.user_agent
+        )
         await self.market_data_stream.start()
 
     def assert_symbol_exists(self, symbol):

@@ -29,12 +29,12 @@ class Config:
         self.api_secret = binance["api_secret"]
 
 
-def on_order_update(event):
-    # will print: The SELL order of 19.72000000×PAXUSDT has been CANCELED!
-    # or: The SELL order of 19.72000000×PAXUSDT has been NEW!
-    print(
-        f"The {event.side} order of {event.order_quantity}×{event.symbol} has been {event.execution_type}!"
-    )
+def on_price_update(event):
+    print(f"Event: {event}")
+
+
+def on_traded(event):
+    print(f"Event: {event}")
 
 
 async def main(loop):
@@ -46,7 +46,8 @@ async def main(loop):
     # to prevent you if you entered a wrong token name for example)
     await client.load()
     # we register the events
-    client.events.register_event(on_order_update, "ethbtc@bookTicker")
+    client.events.register_event(on_price_update, "ethbtc@bookTicker")
+    client.events.register_event(on_traded, "ethbtc@trade")
     # we start the data stream
     loop.create_task(client.start_market_events_listener())
 

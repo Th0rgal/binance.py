@@ -40,15 +40,17 @@ class MarketEventsDataStream(EventsDataStream):
     async def start(self):
         async with aiohttp.ClientSession() as session:
             combined_streams = "/".join(self.client.events.registered_streams)
-            print(combined_streams)
             self.web_socket = await session.ws_connect(
                 f"{self.endpoint}/stream?streams={combined_streams}"
             )
             await self._handle_messages(self.web_socket)
 
     def _handle_event(self, content):
-        event = self.client.events.wrap_event(content)
-        event.fire()
+        if isinstance(content, list):
+            for event_content in content:
+                self.client.events.wrap_event(event_content).fire()
+        else:
+            self.client.events.wrap_event(content).fire()
 
 
 class UserEventsDataStream(EventsDataStream):

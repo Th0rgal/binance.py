@@ -2,6 +2,10 @@ class BinancePyError(Exception):
     pass
 
 
+class UnknownEventType(BinancePyError):
+    message = "BinancePy doesn't handle this event type"
+
+
 class BinanceError(BinancePyError):
     pass
 

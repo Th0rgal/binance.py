@@ -1,4 +1,5 @@
 from collections import defaultdict
+from .errors import UnknownEventType
 
 # based on: https://stackoverflow.com/a/2022629/10144963
 class Handlers(list):
@@ -41,7 +42,16 @@ class Events:
             "executionReport": OrderUpdateWrapper,
             "listStatus": ListStatus,
         }
-        event_type = event_data["e"]
+
+        if "e" in event_data:
+            event_type = event_data["e"]
+        elif "stream" in event_data:
+            event_type = event_data["stream"]
+            event_data = event_data["data"]
+        if "@" in event_type:
+            event_type = event_type.split("@")[1]
+        if event_type not in wrapper_by_type:
+            raise UnknownEventType()
         wrapper = wrapper_by_type[event_type]
         return wrapper(event_data, self.handlers[event_type])
 

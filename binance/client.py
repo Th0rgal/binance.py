@@ -253,8 +253,8 @@ class Client:
         order_type = self.enum_to_value(order_type)
         if not side:
             raise ValueError("This query requires a side.")
-        if not type:
-            raise ValueError("This query requires a type.")
+        if not order_type:
+            raise ValueError("This query requires an order_type.")
         params = {"symbol": symbol, "side": side, "type": order_type}
 
         if time_in_force:

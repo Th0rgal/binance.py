@@ -44,8 +44,9 @@ class Events:
             "aggTrade": AggregateTradeWrapper,
             "trade": TradeWrapper,
             "kline": KlineWrapper,
-            "miniTicker": SymbolMiniTickerWrapper,
             "24hrMiniTicker": SymbolMiniTickerWrapper,
+            "24hrTicker": SymbolTickerWrapper,
+            "bookTicker": SymbolBookTickerWrapper,
         }
 
         stream = event_data["stream"] if "stream" in event_data else False
@@ -63,7 +64,6 @@ class Events:
 class BinanceEventWrapper:
     def __init__(self, event_data, handlers):
         self.handlers = handlers
-        self.event_time = event_data["E"]
 
     def fire(self):
         if self.handlers:
@@ -142,12 +142,52 @@ class SymbolMiniTickerWrapper(BinanceEventWrapper):
         self.total_traded_quote_asset_volume = event_data["q"]
 
 
+class SymbolTickerWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        self.price_change = event_data["p"]
+        self.price_change_percent = event_data["P"]
+        self.weighted_average_price = event_data["w"]
+        self.first_trade_before_window = event_data["x"]
+        self.last_price = event_data["c"]
+        self.last_quantity = event_data["Q"]
+        self.best_bid_price = event_data["b"]
+        self.best_bid_quantity = event_data["B"]
+        self.best_ask_price = event_data["a"]
+        self.best_ask_quantity = event_data["A"]
+        self.open_price = event_data["o"]
+        self.high_price = event_data["h"]
+        self.low_price = event_data["l"]
+        self.total_traded_base_asset_volume = event_data["v"]
+        self.total_traded_quote_asset_volume = event_data["q"]
+        self.statistics_open_time = event_data["O"]
+        self.statistics_close_time = event_data["C"]
+        self.first_trade_id = event_data["F"]
+        self.last_trade_id = event_data["L"]
+        self.total_trade_numbers = event_data["n"]
+
+
+class SymbolBookTickerWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.order_book_updated = event_data["u"]
+        self.symbol = event_data["s"]
+        self.best_bid_price = event_data["b"]
+        self.best_bid_quantity = event_data["B"]
+        self.best_ask_price = event_data["a"]
+        self.best_ask_quantity = event_data["A"]
+
+
 # ACCOUNT UPDATE
 
 
 class OutboundAccountInfoWrapper(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
         super().__init__(event_data, handlers)
+        self.event_time = event_data["E"]
         self.maker_commission_rate = event_data["m"]
         self.taker_commission_rate = event_data["t"]
         self.buyer_commission_rate = event_data["b"]
@@ -165,6 +205,7 @@ class OutboundAccountInfoWrapper(BinanceEventWrapper):
 class OutboundAccountPositionWrapper(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
         super().__init__(event_data, handlers)
+        self.event_time = event_data["E"]
         self.last_update = event_data["u"]
         self.balances = dict(
             map(lambda x: (x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"])
@@ -177,6 +218,7 @@ class OutboundAccountPositionWrapper(BinanceEventWrapper):
 class BalanceUpdateWrapper(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
         super().__init__(event_data, handlers)
+        self.event_time = event_data["E"]
         self.asset = event_data["a"]
         self.balance_delta = event_data["d"]
         self.clear_time = event_data["T"]
@@ -188,6 +230,7 @@ class BalanceUpdateWrapper(BinanceEventWrapper):
 class OrderUpdateWrapper(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
         super().__init__(event_data, handlers)
+        self.event_time = event_data["E"]
         self.symbol = event_data["s"]
         self.client_order_id = event_data["c"]
         self.side = event_data["S"]
@@ -223,6 +266,7 @@ class OrderUpdateWrapper(BinanceEventWrapper):
 class ListStatus(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
         super().__init__(event_data, handlers)
+        self.event_time = event_data["E"]
         self.symbol = event_data["s"]
         self.order_list_id = event_data["g"]
         self.contingency_type = event_data["c"]

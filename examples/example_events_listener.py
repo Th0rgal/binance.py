@@ -28,8 +28,11 @@ class Config:
         self.api_key = binance["api_key"]
         self.api_secret = binance["api_secret"]
 
-def on_event_update(event):
-    print(f"symbol:", event.symbol, "total traded:", event.total_traded_base_asset_volume)
+
+def on_price_change(event):
+    print(
+        f"symbol: {event.symbol}, best bid: {event.best_bid_quantity}×{event.best_bid_price}, best ask: {event.best_ask_quantity}×{event.best_ask_price}"
+    )
 
 
 async def main(loop):
@@ -42,7 +45,7 @@ async def main(loop):
     await client.load()
     # we register the events
     # client.events.register_event(on_price_update, "ethbtc@bookTicker")
-    client.events.register_event(on_event_update, "!miniTicker@arr")
+    client.events.register_event(on_price_change, "ethbtc@bookTicker")
     # we start the data stream
     loop.create_task(client.start_market_events_listener())
 

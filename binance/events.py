@@ -50,6 +50,7 @@ class Events:
             "depth5": PartialBookDepthWrapper,
             "depth10": PartialBookDepthWrapper,
             "depth20": PartialBookDepthWrapper,
+            "depth": DiffDepthWrapper,
         }
 
         stream = event_data["stream"] if "stream" in event_data else False
@@ -204,6 +205,18 @@ class PartialBookDepthWrapper(BinanceEventWrapper):
         self.last_update_id = event_data["lastUpdateId"]
         self.bids = event_data["bids"]
         self.asks = event_data["asks"]
+
+
+class DiffDepthWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.event_type = event_data["e"]
+        self.event_time = event_data["E"]
+        self.symbol = event_data["s"]
+        self.first_update_id = event_data["U"]
+        self.final_update_id = event_data["u"]
+        self.bids = event_data["b"]
+        self.asks = event_data["a"]
 
 
 # ACCOUNT UPDATE

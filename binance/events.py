@@ -47,6 +47,9 @@ class Events:
             "24hrMiniTicker": SymbolMiniTickerWrapper,
             "24hrTicker": SymbolTickerWrapper,
             "bookTicker": SymbolBookTickerWrapper,
+            "depth5": PartialBookDepthWrapper,
+            "depth10": PartialBookDepthWrapper,
+            "depth20": PartialBookDepthWrapper,
         }
 
         stream = event_data["stream"] if "stream" in event_data else False
@@ -68,6 +71,9 @@ class BinanceEventWrapper:
     def fire(self):
         if self.handlers:
             self.handlers.__call__(self)
+
+
+# MARKET EVENTS
 
 
 class AggregateTradeWrapper(BinanceEventWrapper):
@@ -179,6 +185,25 @@ class SymbolBookTickerWrapper(BinanceEventWrapper):
         self.best_bid_quantity = event_data["B"]
         self.best_ask_price = event_data["a"]
         self.best_ask_quantity = event_data["A"]
+
+
+class SymbolBookTickerWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.order_book_updated = event_data["u"]
+        self.symbol = event_data["s"]
+        self.best_bid_price = event_data["b"]
+        self.best_bid_quantity = event_data["B"]
+        self.best_ask_price = event_data["a"]
+        self.best_ask_quantity = event_data["A"]
+
+
+class PartialBookDepthWrapper(BinanceEventWrapper):
+    def __init__(self, event_data, handlers):
+        super().__init__(event_data, handlers)
+        self.last_update_id = event_data["lastUpdateId"]
+        self.bids = event_data["bids"]
+        self.asks = event_data["asks"]
 
 
 # ACCOUNT UPDATE

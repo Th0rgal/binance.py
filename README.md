@@ -42,7 +42,8 @@ The binance api is complex to grasp and using a wrapper saves time but also ensu
 - Covers general endpoints (test connectivity and get exchange informations)
 - Covers market data endpoints
 - Covers Account endpoints (create and manage orders)
-- Covers user data stream (receive real time updates)
+- Covers user data stream (receive real time user updates)
+- Covers web socket streams (receive real time market updates)
 - Async support
 - Completely free and without limitations
 

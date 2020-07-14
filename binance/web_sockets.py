@@ -34,9 +34,6 @@ class MarketEventsDataStream(EventsDataStream):
     def __init__(self, client, endpoint, user_agent):
         super().__init__(client, endpoint, user_agent)
 
-    async def _heartbeat(self, listen_key):
-        await self.web_socket.send_str("pong")
-
     async def start(self):
         async with aiohttp.ClientSession() as session:
             combined_streams = "/".join(self.client.events.registered_streams)

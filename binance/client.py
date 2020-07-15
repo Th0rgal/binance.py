@@ -296,6 +296,8 @@ class Client:
             params["newClientOrderId"] = new_client_order_id
 
         if stop_price:
+            if self.loaded:
+                stop_price = round(stop_price, self.base_asset_precision)
             params["stopPrice"] = stop_price
         elif order_type in [
             OrderType.STOP_LOSS.value,
@@ -447,6 +449,9 @@ class Client:
         if not stop_price:
             raise ValueError("This query requires a stop_price.")
 
+        if self.loaded:
+            price = round(price, self.base_asset_precision)
+
         params = {
             "symbol": symbol,
             "side": side,
@@ -460,6 +465,8 @@ class Client:
         if limit_iceberg_quantity:
             params["limitIcebergQty"] = limit_iceberg_quantity
         if stop_client_order_id:
+            if self.loaded:
+                stop_client_order_id = round(stop_client_order_id, self.base_asset_precision)
             params["stopLimitPrice"] = stop_client_order_id
         if stop_iceberg_quantity:
             params["stopIcebergQty"] = stop_iceberg_quantity

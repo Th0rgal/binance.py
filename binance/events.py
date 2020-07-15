@@ -34,6 +34,9 @@ class Events:
         self.registered_streams.add(event_type)
         self.handlers[event_type].append(listener)
 
+    def unregister(self, listener, event_type):
+        self.handlers[event_type].remove(listener)
+
     def wrap_event(self, event_data):
         wrapper_by_type = {
             "outboundAccountInfo": OutboundAccountInfoWrapper,

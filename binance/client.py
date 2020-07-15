@@ -64,6 +64,11 @@ class Client:
                     f"Symbol {symbol} is not valid according to the loaded exchange infos."
                 )
 
+    def round(self, amount):
+        if self.loaded:
+            amount = round(amount, self.base_asset_precision)
+        return amount
+
     def assert_symbol(self, symbol):
         if not symbol:
             raise ValueError("This query requires a symbol.")
@@ -270,9 +275,9 @@ class Client:
             raise ValueError("This order type requires a time_in_force.")
 
         if quote_order_quantity:
-            params["quoteOrderQty"] = quote_order_quantity
+            params["quoteOrderQty"] = self.round(quote_order_quantity)
         if quantity:
-            params["quantity"] = quantity
+            params["quantity"] = self.round(quantity)
         elif not quote_order_quantity:
             raise ValueError(
                 "This order type requires a quantity or a quote_order_quantity."
@@ -281,9 +286,7 @@ class Client:
             )
 
         if price:
-            if self.loaded:
-                price = round(price, self.base_asset_precision)
-            params["price"] = price
+            params["price"] = self.round(price)
         elif order_type in [
             OrderType.LIMIT.value,
             OrderType.STOP_LOSS_LIMIT.value,
@@ -296,9 +299,7 @@ class Client:
             params["newClientOrderId"] = new_client_order_id
 
         if stop_price:
-            if self.loaded:
-                stop_price = round(stop_price, self.base_asset_precision)
-            params["stopPrice"] = stop_price
+            params["stopPrice"] = self.round(stop_price)
         elif order_type in [
             OrderType.STOP_LOSS.value,
             OrderType.STOP_LOSS_LIMIT.value,
@@ -308,7 +309,7 @@ class Client:
             raise ValueError("This order type requires a stop_price.")
 
         if iceberg_quantity:
-            params["icebergQty"] = iceberg_quantity
+            params["icebergQty"] = self.round(iceberg_quantity)
         if response_type:
             params["newOrderRespType"] = response_type
         if receive_window:
@@ -449,27 +450,22 @@ class Client:
         if not stop_price:
             raise ValueError("This query requires a stop_price.")
 
-        if self.loaded:
-            price = round(price, self.base_asset_precision)
-
         params = {
             "symbol": symbol,
             "side": side,
-            "quantity": quantity,
-            "price": price,
-            "stopPrice": stop_price,
+            "quantity": self.round(quantity),
+            "price": self.round(price),
+            "stopPrice": self.round(stop_price),
         }
 
         if list_client_order_id:
             params["listClientOrderId"] = list_client_order_id
         if limit_iceberg_quantity:
-            params["limitIcebergQty"] = limit_iceberg_quantity
+            params["limitIcebergQty"] = self.round(limit_iceberg_quantity)
         if stop_client_order_id:
-            if self.loaded:
-                stop_client_order_id = round(stop_client_order_id, self.base_asset_precision)
-            params["stopLimitPrice"] = stop_client_order_id
+            params["stopLimitPrice"] = self.round(stop_client_order_id)
         if stop_iceberg_quantity:
-            params["stopIcebergQty"] = stop_iceberg_quantity
+            params["stopIcebergQty"] = self.round(stop_iceberg_quantity)
         if stop_limit_time_in_force:
             params["stopLimitTimeInForce"] = stop_limit_time_in_force
         if response_type:

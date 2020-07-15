@@ -33,7 +33,7 @@ class Client:
         self.rate_limits = infos["rateLimits"]
 
         # load asset precision
-        self.base_asset_precision = infos["baseAssetPrecision"]
+        self.base_asset_precision = infos["symbols"]["baseAssetPrecision"]
 
         self.loaded = True
 

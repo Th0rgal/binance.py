@@ -32,6 +32,9 @@ class Client:
         # load rate limits
         self.rate_limits = infos["rateLimits"]
 
+        # load asset precision
+        self.base_asset_precision = infos["baseAssetPrecision"]
+
         self.loaded = True
 
     @property
@@ -278,6 +281,8 @@ class Client:
             )
 
         if price:
+            if self.loaded:
+                price = round(price, self.base_asset_precision)
             params["price"] = price
         elif order_type in [
             OrderType.LIMIT.value,

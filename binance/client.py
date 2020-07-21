@@ -63,7 +63,8 @@ class Client:
 
     def round(self, symbol, amount):
         if self.loaded:
-            amount = round(amount, self.symbols[symbol]["baseAssetPrecision"])
+            precision = self.symbols[symbol]["baseAssetPrecision"]
+            return f"%.{precision}f" % round(amount, precision)
         return amount
 
     def assert_symbol(self, symbol):

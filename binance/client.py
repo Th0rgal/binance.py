@@ -27,7 +27,15 @@ class Client:
         infos = await self.fetch_exchange_info()
 
         # load available symbols
-        self.symbols = dict(map(lambda x: (x.pop("symbol"), x), infos["symbols"]))
+        self.symbols = {}
+
+        original_symbol_infos = infos["symbols"]
+        for symbol_infos in original_symbol_infos:
+            symbol = symbol_infos.pop("symbol")
+            symbol_infos["filters"] = dict(
+                map(lambda x: (x.pop("filterType"), x), symbol_infos["filters"])
+            )
+            self.symbols[symbol] = symbol_infos
 
         # load rate limits
         self.rate_limits = infos["rateLimits"]
@@ -61,14 +69,27 @@ class Client:
                     f"Symbol {symbol} is not valid according to the loaded exchange infos."
                 )
 
-    def round(self, symbol, amount):
+    def refine_amount(self, symbol, amount):
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
-            step_size = self.symbols[symbol]["stepSize"]
+            lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
+            step_size = lot_size_filter["stepSize"]
             return (
-                f"%.{precision}f" % round((amount // step_size) * step_size, precision)
-            ).strip("0")
+                (
+                    f"%.{precision}f"
+                    % round((amount // float(step_size)) * float(step_size), precision)
+                )
+                .rstrip("0")
+                .rstrip(".")
+            )
         return amount
+
+    def refine_price(self, symbol, price):
+        if self.loaded:
+            precision = self.symbols[symbol]["baseAssetPrecision"]
+            percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
+            return (f"%.{precision}f" % round(price, precision)).rstrip("0").rstrip("1")
+        return price
 
     def assert_symbol(self, symbol):
         if not symbol:
@@ -276,9 +297,9 @@ class Client:
             raise ValueError("This order type requires a time_in_force.")
 
         if quote_order_quantity:
-            params["quoteOrderQty"] = self.round(symbol, quote_order_quantity)
+            params["quoteOrderQty"] = self.refine_amount(symbol, quote_order_quantity)
         if quantity:
-            params["quantity"] = self.round(symbol, quantity)
+            params["quantity"] = self.refine_amount(symbol, quantity)
         elif not quote_order_quantity:
             raise ValueError(
                 "This order type requires a quantity or a quote_order_quantity."
@@ -287,7 +308,7 @@ class Client:
             )
 
         if price:
-            params["price"] = self.round(symbol, price)
+            params["price"] = self.refine_price(symbol, price)
         elif order_type in [
             OrderType.LIMIT.value,
             OrderType.STOP_LOSS_LIMIT.value,
@@ -300,7 +321,7 @@ class Client:
             params["newClientOrderId"] = new_client_order_id
 
         if stop_price:
-            params["stopPrice"] = self.round(symbol, stop_price)
+            params["stopPrice"] = self.refine_price(symbol, stop_price)
         elif order_type in [
             OrderType.STOP_LOSS.value,
             OrderType.STOP_LOSS_LIMIT.value,
@@ -310,7 +331,7 @@ class Client:
             raise ValueError("This order type requires a stop_price.")
 
         if iceberg_quantity:
-            params["icebergQty"] = self.round(symbol, iceberg_quantity)
+            params["icebergQty"] = self.refine_amount(symbol, iceberg_quantity)
         if response_type:
             params["newOrderRespType"] = response_type
         if receive_window:
@@ -454,19 +475,21 @@ class Client:
         params = {
             "symbol": symbol,
             "side": side,
-            "quantity": self.round(symbol, quantity),
-            "price": self.round(symbol, price),
-            "stopPrice": self.round(symbol, stop_price),
+            "quantity": self.refine_amount(symbol, quantity),
+            "price": self.refine_price(symbol, price),
+            "stopPrice": self.refine_price(symbol, stop_price),
         }
 
         if list_client_order_id:
             params["listClientOrderId"] = list_client_order_id
         if limit_iceberg_quantity:
-            params["limitIcebergQty"] = self.round(symbol, limit_iceberg_quantity)
+            params["limitIcebergQty"] = self.refine_amount(
+                symbol, limit_iceberg_quantity
+            )
         if stop_client_order_id:
-            params["stopLimitPrice"] = self.round(symbol, stop_client_order_id)
+            params["stopLimitPrice"] = self.refine_price(symbol, stop_client_order_id)
         if stop_iceberg_quantity:
-            params["stopIcebergQty"] = self.round(symbol, stop_iceberg_quantity)
+            params["stopIcebergQty"] = self.refine_amount(symbol, stop_iceberg_quantity)
         if stop_limit_time_in_force:
             params["stopLimitTimeInForce"] = stop_limit_time_in_force
         if response_type:

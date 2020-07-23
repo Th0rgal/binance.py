@@ -58,7 +58,7 @@ class Events:
 
         stream = event_data["stream"] if "stream" in event_data else False
         event_type = event_data["e"] if "e" in event_data else stream
-        if "@" in event_type: # lgtm [py/member-test-non-container]
+        if "@" in event_type:  # lgtm [py/member-test-non-container]
             event_type = event_type.split("@")[1]
         if event_type.startswith("kline_"):
             event_type = "kline"
@@ -81,7 +81,7 @@ class BinanceEventWrapper:
 
 
 class AggregateTradeWrapper(BinanceEventWrapper):
-    def __init__(self, event_data, handlers): # lgtm [py/similar-function]
+    def __init__(self, event_data, handlers):  # lgtm [py/similar-function]
         super().__init__(event_data, handlers)
         self.event_type = event_data["e"]
         self.event_time = event_data["E"]
@@ -97,7 +97,7 @@ class AggregateTradeWrapper(BinanceEventWrapper):
 
 
 class TradeWrapper(BinanceEventWrapper):
-    def __init__(self, event_data, handlers): # lgtm [py/similar-function]
+    def __init__(self, event_data, handlers):  # lgtm [py/similar-function]
         super().__init__(event_data, handlers)
         self.event_type = event_data["e"]
         self.event_time = event_data["E"]
@@ -140,7 +140,7 @@ class KlineWrapper(BinanceEventWrapper):
 
 class SymbolMiniTickerWrapper(BinanceEventWrapper):
     def __init__(self, event_data, handlers):
-        super().__init__(event_data, handlers) # lgtm [py/similar-function]
+        super().__init__(event_data, handlers)  # lgtm [py/similar-function]
         self.event_type = event_data["e"]
         self.event_time = event_data["E"]
         self.symbol = event_data["s"]

@@ -93,7 +93,7 @@ class Client:
     def refine_price(self, symbol, price):
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
-            percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
+            # percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
             return (
                 (f"%.{precision}f" % self.truncate(price, precision))
                 .rstrip("0")

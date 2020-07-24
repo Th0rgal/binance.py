@@ -4,6 +4,7 @@ from .web_sockets import UserEventsDataStream, MarketEventsDataStream
 from . import OrderType
 from .events import Events
 from enum import Enum
+import math
 
 
 class Client:
@@ -69,6 +70,9 @@ class Client:
                     f"Symbol {symbol} is not valid according to the loaded exchange infos."
                 )
 
+    def truncate(self, f, n):
+        return math.floor(f * 10 ** n) / 10 ** n
+
     def refine_amount(self, symbol, amount):
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
@@ -77,7 +81,9 @@ class Client:
             return (
                 (
                     f"%.{precision}f"
-                    % round((amount // float(step_size)) * float(step_size), precision)
+                    % self.truncate(
+                        (amount // float(step_size)) * float(step_size), precision
+                    )
                 )
                 .rstrip("0")
                 .rstrip(".")
@@ -88,7 +94,11 @@ class Client:
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
-            return (f"%.{precision}f" % round(price, precision)).rstrip("0").rstrip("1")
+            return (
+                (f"%.{precision}f" % self.truncate(price, precision))
+                .rstrip("0")
+                .rstrip("1")
+            )
         return price
 
     def assert_symbol(self, symbol):

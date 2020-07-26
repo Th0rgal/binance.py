@@ -35,10 +35,12 @@ async def main(loop):
     client = binance.Client(config.api_key, config.api_secret)
 
     order = await client.create_order(
-        "ETHPAX",
-        binance.Side.BUY.value,
-        binance.OrderType.MARKET.value,
-        quantity=1,
+        symbol="BTCUSDT",
+        side=binance.Side.BUY,
+        order_type=binance.OrderType.LIMIT,
+        time_in_force=binance.TimeInForce.GTC,
+        quantity=0.0012,  # quantiy will be 0.001199 after submission
+        price=9100.00,  # cant use 9100.0 or 9100.00 but 9100.01 works
         test=True,
     )
     print(order)

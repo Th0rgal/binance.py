@@ -77,14 +77,9 @@ class Client:
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
-            step_size = lot_size_filter["stepSize"]
-            return (
-                (
-                    f"%.{precision}f"
-                    % self.truncate(
-                        (amount // float(step_size)) * float(step_size), precision
-                    )
-                )
+            step_size = float(lot_size_filter["stepSize"])
+            amount = (
+                (f"%.{precision}f" % self.truncate(amount-amount%step_size, precision))
                 .rstrip("0")
                 .rstrip(".")
             )
@@ -94,10 +89,10 @@ class Client:
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             # percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
-            return (
+            price = (
                 (f"%.{precision}f" % self.truncate(price, precision))
                 .rstrip("0")
-                .rstrip("1")
+                .rstrip(".")
             )
         return price
 

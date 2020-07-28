@@ -33,15 +33,16 @@ async def main(loop):
     # Don't forget to add your config to .gitignore and give a template
     config = Config("config.toml", "config.template.toml")
     client = binance.Client(config.api_key, config.api_secret)
+    await client.load()
 
     order = await client.create_order(
         symbol="BTCUSDT",
-        side=binance.Side.BUY,
+        side=binance.Side.SELL,
         order_type=binance.OrderType.LIMIT,
         time_in_force=binance.TimeInForce.GTC,
         quantity=0.0012,  # quantiy will be 0.001199 after submission
-        price=9100.00,  # cant use 9100.0 or 9100.00 but 9100.01 works
-        test=True,
+        price=15100.00,  # cant use 9100.0 or 9100.00 but 9100.01 works
+        test=False,
     )
     print(order)
 

@@ -45,8 +45,8 @@ async def main(loop):
         side=binance.Side.SELL,
         order_type=binance.OrderType.LIMIT,
         time_in_force=binance.TimeInForce.GTC,
-        quantity="0.0012",
-        price="15100.00",
+        quantity=Decimal("0.0012"), # you can use Decimals
+        price="15100.00", # or directly a string
         test=False,
     )
     print(order)

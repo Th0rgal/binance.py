@@ -4,7 +4,7 @@
   <br>
 </h1>
 
-<h4 align="center">🦾 A python3 binance API wrapper powered by modern technologies such as asyncio.</h4>
+<h4 align="center">🦾 A python3 binance API wrapper powered by asyncio and python Decimals.</h4>
 
 <p align="center">
     <a href="https://discord.gg/bhbPCXW" alt="discord">
@@ -64,7 +64,7 @@ client = binance.Client(API_KEY, API_SECRET)
 await client.load()
 
 order = await client.create_order(
-    "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity=1, test=True,
+    "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity="1", test=True,
 )
 print(order)
 ```

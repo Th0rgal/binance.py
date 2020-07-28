@@ -99,7 +99,6 @@ class Client:
                 .rstrip("0")
                 .rstrip(".")
             )
-        print(amount)
         return amount
 
     def refine_price(self, symbol, price: Union[str, Decimal]):
@@ -113,7 +112,6 @@ class Client:
                 .rstrip("0")
                 .rstrip(".")
             )
-        print(price)
         return price
 
     def assert_symbol(self, symbol):

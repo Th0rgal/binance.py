@@ -1,4 +1,9 @@
-import os, sys, toml, shutil, asyncio
+import os
+import sys
+import toml
+import shutil
+import asyncio
+from decimal import Decimal
 
 # to import binance.py from the dev directory
 sys.path.append("../")
@@ -40,8 +45,8 @@ async def main(loop):
         side=binance.Side.SELL,
         order_type=binance.OrderType.LIMIT,
         time_in_force=binance.TimeInForce.GTC,
-        quantity=0.0012,  # quantiy will be 0.001199 after submission
-        price=15100.00,  # cant use 9100.0 or 9100.00 but 9100.01 works
+        quantity="0.0012",
+        price="15100.00",
         test=False,
     )
     print(order)

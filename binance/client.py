@@ -4,6 +4,9 @@ from .web_sockets import UserEventsDataStream, MarketEventsDataStream
 from . import OrderType
 from .events import Events
 from enum import Enum
+from typing import Union
+from decimal import Decimal
+import decimal
 import math
 
 
@@ -29,14 +32,22 @@ class Client:
 
         # load available symbols
         self.symbols = {}
+        self.highest_precision = 8
 
         original_symbol_infos = infos["symbols"]
         for symbol_infos in original_symbol_infos:
             symbol = symbol_infos.pop("symbol")
+            precision = symbol_infos["baseAssetPrecision"]
+            if precision > self.highest_precision:
+                self.highest_precision = precision
             symbol_infos["filters"] = dict(
                 map(lambda x: (x.pop("filterType"), x), symbol_infos["filters"])
             )
             self.symbols[symbol] = symbol_infos
+
+        decimal.getcontext().prec = (
+            self.highest_precision + 1
+        )  # for operations and rounding
 
         # load rate limits
         self.rate_limits = infos["rateLimits"]
@@ -73,19 +84,27 @@ class Client:
     def truncate(self, f, n):
         return math.floor(f * 10 ** n) / 10 ** n
 
-    def refine_amount(self, symbol, amount):
+    def refine_amount(self, symbol, amount: Union[str, Decimal]):
+        if type(amount) == str:  # to save time for developers
+            amount = Decimal(amount)
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
-            step_size = float(lot_size_filter["stepSize"])
+            step_size = Decimal(lot_size_filter["stepSize"])
             amount = (
-                (f"%.{precision}f" % self.truncate(amount-amount%step_size, precision))
+                (
+                    f"%.{precision}f"
+                    % self.truncate(amount - amount % step_size, precision)
+                )
                 .rstrip("0")
                 .rstrip(".")
             )
+        print(amount)
         return amount
 
-    def refine_price(self, symbol, price):
+    def refine_price(self, symbol, price: Union[str, Decimal]):
+        if type(price) == str:  # to save time for developers
+            price = Decimal(price)
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             # percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
@@ -94,6 +113,7 @@ class Client:
                 .rstrip("0")
                 .rstrip(".")
             )
+        print(price)
         return price
 
     def assert_symbol(self, symbol):

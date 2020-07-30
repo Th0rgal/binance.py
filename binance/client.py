@@ -83,7 +83,7 @@ class Client:
     def truncate(self, f, n):
         return math.floor(f * 10 ** n) / 10 ** n
 
-    def refine_amount(self, symbol, amount: Union[str, Decimal]):
+    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal]):
         if type(amount) == str:  # to save time for developers
             amount = decimal.Decimal(amount)
         if self.loaded:
@@ -100,7 +100,7 @@ class Client:
             )
         return amount
 
-    def refine_price(self, symbol, price: Union[str, Decimal]):
+    def refine_price(self, symbol, price: Union[str, decimal.Decimal]):
         if type(price) == str:  # to save time for developers
             price = decimal.Decimal(price)
         if self.loaded:

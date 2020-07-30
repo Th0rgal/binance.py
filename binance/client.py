@@ -5,7 +5,6 @@ from . import OrderType
 from .events import Events
 from enum import Enum
 from typing import Union
-from decimal import Decimal
 import decimal
 import math
 
@@ -86,11 +85,11 @@ class Client:
 
     def refine_amount(self, symbol, amount: Union[str, Decimal]):
         if type(amount) == str:  # to save time for developers
-            amount = Decimal(amount)
+            amount = decimal.Decimal(amount)
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
-            step_size = Decimal(lot_size_filter["stepSize"])
+            step_size = decimal.Decimal(lot_size_filter["stepSize"])
             amount = (
                 (
                     f"%.{precision}f"
@@ -103,7 +102,7 @@ class Client:
 
     def refine_price(self, symbol, price: Union[str, Decimal]):
         if type(price) == str:  # to save time for developers
-            price = Decimal(price)
+            price = decimal.Decimal(price)
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
             # percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]

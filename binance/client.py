@@ -83,7 +83,7 @@ class Client:
     def truncate(self, f, n):
         return math.floor(f * 10 ** n) / 10 ** n
 
-    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal]):
+    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal], quote=False):
         if type(amount) == str:  # to save time for developers
             amount = decimal.Decimal(amount)
         if self.loaded:
@@ -93,7 +93,9 @@ class Client:
             amount = (
                 (
                     f"%.{precision}f"
-                    % self.truncate(amount - amount % step_size, precision)
+                    % self.truncate(
+                        amount if quote else (amount - amount % step_size), precision
+                    )
                 )
                 .rstrip("0")
                 .rstrip(".")
@@ -319,7 +321,7 @@ class Client:
             raise ValueError("This order type requires a time_in_force.")
 
         if quote_order_quantity:
-            params["quoteOrderQty"] = self.refine_amount(symbol, quote_order_quantity)
+            params["quoteOrderQty"] = self.refine_amount(symbol, quote_order_quantity, True)
         if quantity:
             params["quantity"] = self.refine_amount(symbol, quantity)
         elif not quote_order_quantity:

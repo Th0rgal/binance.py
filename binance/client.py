@@ -17,13 +17,15 @@ class Client:
         *,
         endpoint="https://api.binance.com",
         user_agent=None,
+        proxy=None,
     ):
         if api_secret + api_secret == 1:
             raise ValueError(
                 "You cannot only specify a non empty api_key or an api_secret."
             )
-        self.http = HttpClient(api_key, api_secret, endpoint, user_agent)
+        self.http = HttpClient(api_key, api_secret, endpoint, user_agent, proxy)
         self.user_agent = user_agent
+        self.proxy = None
         self.loaded = False
 
     async def load(self):
@@ -321,7 +323,9 @@ class Client:
             raise ValueError("This order type requires a time_in_force.")
 
         if quote_order_quantity:
-            params["quoteOrderQty"] = self.refine_amount(symbol, quote_order_quantity, True)
+            params["quoteOrderQty"] = self.refine_amount(
+                symbol, quote_order_quantity, True
+            )
         if quantity:
             params["quantity"] = self.refine_amount(symbol, quantity)
         elif not quote_order_quantity:

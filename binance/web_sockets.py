@@ -37,9 +37,15 @@ class MarketEventsDataStream(EventsDataStream):
     async def start(self):
         async with aiohttp.ClientSession() as session:
             combined_streams = "/".join(self.client.events.registered_streams)
-            self.web_socket = await session.ws_connect(
-                f"{self.endpoint}/stream?streams={combined_streams}"
-            )
+            if self.client.proxy:
+                self.web_socket = await session.ws_connect(
+                    f"{self.endpoint}/stream?streams={combined_streams}",
+                    proxy=self.client.proxy,
+                )
+            else:
+                self.web_socket = await session.ws_connect(
+                    f"{self.endpoint}/stream?streams={combined_streams}"
+                )
             await self._handle_messages(self.web_socket)
 
     def _handle_event(self, content):
@@ -70,7 +76,14 @@ class UserEventsDataStream(EventsDataStream):
     async def start(self):
         async with aiohttp.ClientSession() as session:
             listen_key = (await self.client.create_listen_key())["listenKey"]
-            web_socket = await session.ws_connect(f"{self.endpoint}/ws/{listen_key}")
+            if self.client.proxy:
+                web_socket = await session.ws_connect(
+                    f"{self.endpoint}/ws/{listen_key}"
+                )
+            else:
+                web_socket = await session.ws_connect(
+                    f"{self.endpoint}/ws/{listen_key}", proxy=self.client.proxy
+                )
             asyncio.ensure_future(self._heartbeat(listen_key))
             await self._handle_messages(web_socket)
 

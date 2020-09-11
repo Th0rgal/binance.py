@@ -12,6 +12,7 @@ class TestSignature(unittest.TestCase):
             "NhqPtmdSJYdKjVHjA7PZj4Mge3R5YNiP1e3UZjInClVN65XAbvqqM6A7H5fATj0j",
             None,
             None,
+            None,
         )
         """ Original query:
         {

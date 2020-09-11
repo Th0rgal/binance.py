@@ -39,7 +39,6 @@ class Events:
 
     def wrap_event(self, event_data):
         wrapper_by_type = {
-            "outboundAccountInfo": OutboundAccountInfoWrapper,
             "outboundAccountPosition": OutboundAccountPositionWrapper,
             "balanceUpdate": BalanceUpdateWrapper,
             "executionReport": OrderUpdateWrapper,
@@ -223,24 +222,6 @@ class DiffDepthWrapper(BinanceEventWrapper):
 
 
 # ACCOUNT UPDATE
-
-
-class OutboundAccountInfoWrapper(BinanceEventWrapper):
-    def __init__(self, event_data, handlers):
-        super().__init__(event_data, handlers)
-        self.event_time = event_data["E"]
-        self.maker_commission_rate = event_data["m"]
-        self.taker_commission_rate = event_data["t"]
-        self.buyer_commission_rate = event_data["b"]
-        self.seller_commission_rate = event_data["s"]
-        self.can_trade = event_data["T"]
-        self.can_withdraw = event_data["W"]
-        self.can_deposit = event_data["D"]
-        self.last_update = event_data["u"]
-        self.balances = dict(
-            map(lambda x: (x["a"], {"free": x["f"], "locked": x["l"]}), event_data["B"])
-        )
-        self.account_permissions = event_data["P"]
 
 
 class OutboundAccountPositionWrapper(BinanceEventWrapper):

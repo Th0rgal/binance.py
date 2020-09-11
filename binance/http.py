@@ -74,9 +74,11 @@ class HttpClient:
             if "data" in kwargs:
                 content += urlencode(kwargs["data"])
             kwargs[location]["signature"] = self._generate_signature(content)
+            if self.proxy:
+                kwargs["proxy"] = self.proxy
 
         async with aiohttp.ClientSession() as session:
             async with session.request(
-                method, self.endpoint + path, proxy=proxy, **kwargs,
+                method, self.endpoint + path, **kwargs,
             ) as response:
                 return await self.handle_errors(response)

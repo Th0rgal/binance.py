@@ -109,7 +109,8 @@ class Client:
             price = decimal.Decimal(price)
         if self.loaded:
             precision = self.symbols[symbol]["baseAssetPrecision"]
-            # percent_price_filter = self.symbols[symbol]["filters"]["PERCENT_PRICE"]
+            price_filter = self.symbols[symbol]["filters"]["PRICE_FILTER"]
+            price = price - (price % decimal.Decimal(price_filter["tickSize"]))
             price = (
                 (f"%.{precision}f" % self.truncate(price, precision))
                 .rstrip("0")

@@ -42,7 +42,7 @@ class HttpClient:
             raise RateLimitReached()
         payload = await response.json()
         if payload and "code" in payload:
-            # as defined here: https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
+            # as defined here: https://github.com/binance/binance-spot-api-docs/blob/master/errors.md#error-codes-for-binance-2019-09-25
             raise BinanceError(payload["msg"])
         if response.status >= 400:
             if response.status == 403:

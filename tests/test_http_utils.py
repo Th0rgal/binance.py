@@ -5,7 +5,7 @@ from binance.http import HttpClient
 
 
 class TestSignature(unittest.TestCase):
-    # see: https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#example-2-as-a-query-string
+    # see: https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#example-2-as-a-query-string
     def test_example_query_string(self):
         client = HttpClient(
             "vmPUZE6mv9SD5VNHk4HlWFsOr6aKE2zvsw0MuIgwCIPy6utIco14y7Ju91duEh8A",

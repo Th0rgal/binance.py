@@ -1,5 +1,5 @@
 # Enum definitions of the binance REST API
-# see: https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#enum-definitions
+# see: https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#enum-definitions
 from enum import Enum
 
 # Symbol status (status)

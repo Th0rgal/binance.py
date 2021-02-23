@@ -131,21 +131,21 @@ class Client:
 
     # GENERAL ENDPOINTS
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#test-connectivity
     async def ping(self):
         return await self.http.send_api_call("/api/v3/ping", send_api_key=False)
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#check-server-time
     async def fetch_server_time(self):
         return await self.http.send_api_call("/api/v3/time", send_api_key=False)
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#exchange-information
     async def fetch_exchange_info(self):
         return await self.http.send_api_call("/api/v3/exchangeInfo", send_api_key=False)
 
     # MARKET DATA ENDPOINTS
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#order-book
     async def fetch_order_book(self, symbol, limit=100):
         self.assert_symbol(symbol)
         valid_limits = [5, 10, 20, 50, 100, 500, 1000, 5000]
@@ -164,7 +164,7 @@ class Client:
                 f"{limit} is not a valid limit. Valid limits: {valid_limits}"
             )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#recent-trades-list
     async def fetch_recent_trades_list(self, symbol, limit=500):
         self.assert_symbol(symbol)
         if limit == 500:
@@ -179,7 +179,7 @@ class Client:
             "/api/v3/trades", params=params, signed=False
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data
     async def fetch_old_trades_list(self, symbol, from_id=None, limit=500):
         self.assert_symbol(symbol)
         if limit == 500:
@@ -196,7 +196,7 @@ class Client:
             "/api/v3/historicalTrades", params=params, signed=False
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list
     async def fetch_aggregate_trades_list(
         self, symbol, from_id=None, start_time=None, end_time=None, limit=500
     ):
@@ -219,7 +219,7 @@ class Client:
             "/api/v3/aggTrades", params=params, signed=False
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#klinecandlestick-data
     async def fetch_klines(
         self, symbol, interval, start_time=None, end_time=None, limit=500
     ):
@@ -243,7 +243,7 @@ class Client:
             "/api/v3/klines", params=params, signed=False
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-average-price
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#current-average-price
     async def fetch_average_price(self, symbol):
         self.assert_symbol(symbol)
         return await self.http.send_api_call(
@@ -253,7 +253,7 @@ class Client:
             send_api_key=False,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics
     async def fetch_ticker_price_change_statistics(self, symbol=None):
         if symbol:
             self.assert_symbol_exists(symbol)
@@ -264,7 +264,7 @@ class Client:
             send_api_key=False,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-price-ticker
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#symbol-price-ticker
     async def fetch_symbol_price_ticker(self, symbol=None):
         if symbol:
             self.assert_symbol_exists(symbol)
@@ -275,7 +275,7 @@ class Client:
             send_api_key=False,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-order-book-ticker
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#symbol-order-book-ticker
     async def fetch_symbol_order_book_ticker(self, symbol=None):
         if symbol:
             self.assert_symbol_exists(symbol)
@@ -288,7 +288,7 @@ class Client:
 
     # ACCOUNT ENDPOINTS
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#new-order--trade
     async def create_order(
         self,
         symbol,
@@ -369,7 +369,7 @@ class Client:
         route = "/api/v3/order/test" if test else "/api/v3/order"
         return await self.http.send_api_call(route, "POST", data=params, signed=True)
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-order-user_data
     async def fetch_order(  # lgtm [py/similar-function]
         self, symbol, order_id=None, origin_client_order_id=None, receive_window=None
     ):
@@ -390,7 +390,7 @@ class Client:
             "/api/v3/order", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-order-trade
     async def cancel_order(  # lgtm [py/similar-function]
         self,
         symbol,
@@ -418,7 +418,7 @@ class Client:
             "/api/v3/order", "DELETE", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
     async def cancel_all_orders(self, symbol, receive_window=None):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
@@ -429,7 +429,7 @@ class Client:
             "/api/v3/openOrders", "DELETE", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#current-open-orders-user_data
     async def fetch_open_orders(self, symbol, receive_window=None):
         self.assert_symbol(symbol)
         params = {"symbol": symbol}
@@ -440,7 +440,7 @@ class Client:
             "/api/v3/openOrders", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#all-orders-user_data
     async def fetch_all_orders(
         self,
         symbol,
@@ -473,7 +473,7 @@ class Client:
             "/api/v3/allOrders", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-oco-trade
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#new-oco-trade
     async def create_oco(
         self,
         symbol,
@@ -530,7 +530,7 @@ class Client:
             "/api/v3/order/oco", "POST", data=params, signed=True
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-oco-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-oco-user_data
     async def fetch_oco(  # lgtm [py/similar-function]
         self,
         symbol,
@@ -555,7 +555,7 @@ class Client:
             "/api/v3/orderList", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-oco-trade
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-oco-trade
     async def cancel_oco(  # lgtm [py/similar-function]
         self,
         symbol,
@@ -583,7 +583,7 @@ class Client:
             "/api/v3/order/oco", "DELETE", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-open-oco-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-open-oco-user_data
     async def fetch_open_oco(self, receive_window=None):
         params = {}
 
@@ -594,7 +594,7 @@ class Client:
             "/api/v3/openOrderList", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-all-oco-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-all-oco-user_data
     async def fetch_all_oco(
         self,
         from_id=None,
@@ -620,7 +620,7 @@ class Client:
             "/api/v3/allOrderList", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#account-information-user_data
     async def fetch_account_information(self, receive_window=None):
         params = {}
 
@@ -631,7 +631,7 @@ class Client:
             "/api/v3/account", params=params, signed=True,
         )
 
-    # https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-trade-list-user_data
+    # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#account-trade-list-user_data
     async def fetch_account_trade_list(
         self,
         symbol,

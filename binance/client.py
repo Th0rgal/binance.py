@@ -258,7 +258,7 @@ class Client:
         if symbol:
             self.assert_symbol_exists(symbol)
         return await self.http.send_api_call(
-            "/api/v3/avgPrice",
+            "/api/v3/ticker/24hr",
             params={"symbol": symbol} if symbol else {},
             signed=False,
             send_api_key=False,

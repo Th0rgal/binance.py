@@ -33,6 +33,11 @@ def on_price_change(event):
     print(
         f"symbol: {event.symbol}, best bid: {event.best_bid_quantity}×{event.best_bid_price}, best ask: {event.best_ask_quantity}×{event.best_ask_price}"
     )
+    asyncio.create_task(foo())
+
+
+async def foo():
+    print("this can contain await instructions without blocking the code")
 
 
 async def main(loop):

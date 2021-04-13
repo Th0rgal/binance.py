@@ -47,9 +47,10 @@ async def main(loop):
         time_in_force=binance.TimeInForce.GTC,
         quantity=Decimal("0.0012"),  # you can use Decimals
         price="15100.00",  # or directly a string
-        test=False,
+        test=True,
     )
     print(order)
+    await client.close()
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from binance import __version__
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open('requirements.txt') as fh:
+with open("requirements.txt") as fh:
     required = fh.read().splitlines()
 
 setuptools.setup(

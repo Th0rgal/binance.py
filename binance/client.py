@@ -18,12 +18,15 @@ class Client:
         endpoint="https://api.binance.com",
         user_agent=None,
         proxy=None,
+        session=None,
     ):
         if api_secret + api_secret == 1:
             raise ValueError(
                 "You cannot only specify a non empty api_key or an api_secret."
             )
-        self.http = HttpClient(api_key, api_secret, endpoint, user_agent, proxy)
+        self.http = HttpClient(
+            api_key, api_secret, endpoint, user_agent, proxy, session
+        )
         self.user_agent = user_agent
         self.proxy = None
         self.loaded = False
@@ -54,6 +57,9 @@ class Client:
         self.rate_limits = infos["rateLimits"]
 
         self.loaded = True
+
+    async def close(self):
+        await http.close_session()
 
     @property
     def events(self):

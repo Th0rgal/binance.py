@@ -16,7 +16,7 @@ from .errors import (
 
 
 class HttpClient:
-    def __init__(self, api_key, api_secret, endpoint, user_agent, proxy):
+    def __init__(self, api_key, api_secret, endpoint, user_agent, proxy, session):
         self.api_key = api_key
         self.api_secret = api_secret
         self.endpoint = endpoint
@@ -26,6 +26,7 @@ class HttpClient:
         else:
             self.user_agent = f"binance.py (https://git.io/binance.py, {__version__})"
         self.proxy = proxy
+        self.session = session if session else aiohttp.ClientSession()
 
     def _generate_signature(self, data):
         return hmac.new(
@@ -77,8 +78,10 @@ class HttpClient:
             if self.proxy:
                 kwargs["proxy"] = self.proxy
 
-        async with aiohttp.ClientSession() as session:
-            async with session.request(
-                method, self.endpoint + path, **kwargs,
-            ) as response:
-                return await self.handle_errors(response)
+        async with self.session.request(
+            method, self.endpoint + path, **kwargs,
+        ) as response:
+            return await self.handle_errors(response)
+
+    async def close_session(self):
+        await self.session.close()

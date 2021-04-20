@@ -59,7 +59,7 @@ class Client:
         self.loaded = True
 
     async def close(self):
-        await http.close_session()
+        await self.http.close_session()
 
     @property
     def events(self):

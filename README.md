@@ -35,6 +35,12 @@ python3 -m pip install -U binance.py
 py -3 -m pip install -U binance.py
 ```
 
+Alternatively you can build the package and install it manually:
+```
+python setup.py sdist bdist_wheel
+python -m pip install dist/binance.py-X.X.X-py3-none-any.whl
+```
+
 ## Why binance.py?
 The binance api is complex to grasp and using a wrapper saves time but also ensures that the right practices are adopted. Binance.py offers a modern and asynchronous solution.
 

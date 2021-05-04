@@ -70,7 +70,7 @@ client = binance.Client(API_KEY, API_SECRET)
 await client.load()
 
 order = await client.create_order(
-    "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity="1", test=True,
+    "ETHPAX", binance.Side.BUY.value, binance.OrderType.MARKET.value, quantity="1", test=True,
 )
 print(order)
 await client.close()

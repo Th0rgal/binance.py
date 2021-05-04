@@ -73,6 +73,7 @@ order = await client.create_order(
     "ETHPAX", Side.BUY.value, OrderType.MARKET.value, quantity="1", test=True,
 )
 print(order)
+await client.close()
 ```
 - Check some [examples](https://github.com/Th0rgal/binance.py/tree/master/examples)
 

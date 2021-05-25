@@ -27,7 +27,7 @@ class EventsDataStream:
                     f"Something went wrong with the websocket, reconnecting..."
                 )
                 asyncio.ensure_future(self.connect())
-            self._handle_event(json.loads(msg.data))
+            await self._handle_event(json.loads(msg.data))
 
 
 class MarketEventsDataStream(EventsDataStream):
@@ -48,17 +48,17 @@ class MarketEventsDataStream(EventsDataStream):
                 )
             await self._handle_messages(self.web_socket)
 
-    def _handle_event(self, content):
+    async def _handle_event(self, content):
         if "stream" in content:
             stream_name = content["stream"]
             content = content["data"]
         if isinstance(content, list):
             for event_content in content:
                 event_content["stream"] = stream_name
-                self.client.events.wrap_event(event_content).fire()
+                await self.client.events.wrap_event(event_content).fire()
         else:
             content["stream"] = stream_name
-            self.client.events.wrap_event(content).fire()
+            await self.client.events.wrap_event(content).fire()
 
 
 class UserEventsDataStream(EventsDataStream):
@@ -87,6 +87,6 @@ class UserEventsDataStream(EventsDataStream):
             asyncio.ensure_future(self._heartbeat(listen_key))
             await self._handle_messages(web_socket)
 
-    def _handle_event(self, content):
+    async def _handle_event(self, content):
         event = self.client.events.wrap_event(content)
-        event.fire()
+        await event.fire()

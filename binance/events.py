@@ -1,15 +1,24 @@
+import asyncio
+import functools
 from collections import defaultdict
+
 from .errors import UnknownEventType
+
 
 # based on: https://stackoverflow.com/a/2022629/10144963
 class Handlers(list):
-    def __call__(self, *args, **kwargs):
-        for f in self:
-            f(*args, **kwargs)
+    async def __call__(self, *args, **kwargs):
+        loop = asyncio.get_running_loop()
+        for func in self:
+            if asyncio.iscoroutinefunction(func):
+                await func(*args, **kwargs)
+                continue
+            if kwargs:
+                func = functools.partial(func, **kwargs)
+            loop.run_in_executor(None, func, *args)
 
     def __repr__(self):
         return "Handlers(%s)" % list.__repr__(self)
-
 
 # HANDLERS
 # Example usage:
@@ -71,9 +80,9 @@ class BinanceEventWrapper:
     def __init__(self, event_data, handlers):
         self.handlers = handlers
 
-    def fire(self):
+    async def fire(self):
         if self.handlers:
-            self.handlers.__call__(self)
+            await self.handlers(self)
 
 
 # MARKET EVENTS

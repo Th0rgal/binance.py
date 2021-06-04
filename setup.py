@@ -1,5 +1,11 @@
 import setuptools
-from binance import __version__
+
+def get_version(rel_path):
+    with open(rel_path) as fp:
+        for line in fp:
+            if line.startswith('__version__'):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -9,7 +15,7 @@ with open("requirements.txt") as fh:
 
 setuptools.setup(
     name="binance.py",
-    version=__version__,
+    version=get_version("binance/__init__.py"),
     author="Th0rgal",
     author_email="thomas.marchand@tuta.io",
     description="A python3 binance API wrapper powered by modern technologies such as asyncio",

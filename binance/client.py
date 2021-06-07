@@ -6,7 +6,6 @@ from .events import Events
 from enum import Enum
 from typing import Union
 import decimal
-import math
 
 
 class Client:
@@ -50,7 +49,7 @@ class Client:
             self.symbols[symbol] = symbol_infos
 
         decimal.getcontext().prec = (
-            self.highest_precision + 1
+            self.highest_precision + 4
         )  # for operations and rounding
 
         # load rate limits
@@ -88,41 +87,34 @@ class Client:
                     f"Symbol {symbol} is not valid according to the loaded exchange infos."
                 )
 
-    def truncate(self, f, n):
-        return math.floor(f * 10 ** n) / 10 ** n
+    def remove_exponent(self, d):
+        return d.quantize(decimal.Decimal(1)) if d == d.to_integral() else d.normalize()
 
-    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal], quote=False):
-        if type(amount) == str:  # to save time for developers
+    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal], quote=False) -> decimal.Decimal:
+        if isinstance(amount, str):  # to save time for developers
             amount = decimal.Decimal(amount)
-        if self.loaded:
-            precision = self.symbols[symbol]["baseAssetPrecision"]
+
+        if quote:
+            amount = amount.quantize(decimal.Decimal(1), rounding=decimal.ROUND_DOWN)
+        elif self.loaded:
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
-            step_size = decimal.Decimal(lot_size_filter["stepSize"])
-            amount = (
-                (
-                    f"%.{precision}f"
-                    % self.truncate(
-                        amount if quote else (amount - amount % step_size), precision
-                    )
-                )
-                .rstrip("0")
-                .rstrip(".")
+            step_size = decimal.Decimal(lot_size_filter["stepSize"]).normalize()
+            amount = self.remove_exponent(
+                amount.quantize(step_size, rounding=decimal.ROUND_DOWN),
             )
+
         return amount
 
-    def refine_price(self, symbol, price: Union[str, decimal.Decimal]):
-        if type(price) == str:  # to save time for developers
+    def refine_price(self, symbol, price: Union[str, decimal.Decimal]) -> decimal.Decimal:
+        if isinstance(price, str):  # to save time for developers
             price = decimal.Decimal(price)
+
         if self.loaded:
-            precision = self.symbols[symbol]["baseAssetPrecision"]
             price_filter = self.symbols[symbol]["filters"]["PRICE_FILTER"]
-            price = price - (price % decimal.Decimal(price_filter["tickSize"]))
-            price = (
-                (f"%.{precision}f" % self.truncate(price, precision))
-                .rstrip("0")
-                .rstrip(".")
-            )
-        return price
+            tick_size = decimal.Decimal(price_filter["tickSize"]).normalize()
+            price = price.quantize(tick_size, rounding=decimal.ROUND_DOWN)
+
+        return self.remove_exponent(price)
 
     def assert_symbol(self, symbol):
         if not symbol:

@@ -167,11 +167,11 @@ class Client:
         self.assert_symbol(symbol)
         if limit == 500:
             params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
             )
         return await self.http.send_api_call(
             "/api/v3/trades", params=params, signed=False
@@ -182,11 +182,11 @@ class Client:
         self.assert_symbol(symbol)
         if limit == 500:
             params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
             )
         if from_id:
             params["fromId"] = from_id
@@ -201,11 +201,11 @@ class Client:
         self.assert_symbol(symbol)
         if limit == 500:
             params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
             )
         if from_id:
             params["fromId"] = from_id
@@ -227,11 +227,11 @@ class Client:
             raise ValueError("This query requires an interval.")
         if limit == 500:
             params = {"symbol": symbol, "interval": interval}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "interval": interval, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
             )
         if start_time:
             params["startTime"] = start_time
@@ -451,11 +451,11 @@ class Client:
         self.assert_symbol(symbol)
         if limit == 500:
             params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "limit": limit}
         else:
             raise ValueError(
-                f"{limit} is not a valid limit. A valid limit should be > 0 and < to 1000."
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
             )
 
         if order_id:
@@ -642,8 +642,12 @@ class Client:
         self.assert_symbol(symbol)
         if limit == 500:
             params = {"symbol": symbol}
-        elif limit > 0 and limit < 1000:
+        elif limit > 0 and limit <= 1000:
             params = {"symbol": symbol, "limit": limit}
+        else:
+            raise ValueError(
+                f"{limit} is not a valid limit. A valid limit should be > 0 and <= to 1000."
+            )
 
         if start_time:
             params["startTime"] = start_time

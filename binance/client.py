@@ -108,7 +108,6 @@ class Client:
                 .rstrip("0")
                 .rstrip(".")
             )
-        print(amount)
         return amount
 
     def refine_price(

@@ -6,6 +6,7 @@ from .events import Events
 from enum import Enum
 from typing import Union
 import decimal
+import math
 
 
 class Client:
@@ -87,25 +88,32 @@ class Client:
                     f"Symbol {symbol} is not valid according to the loaded exchange infos."
                 )
 
-    def remove_exponent(self, d):
-        return d.quantize(decimal.Decimal(1)) if d == d.to_integral() else d.normalize()
+    def truncate(self, f, n):
+        return math.floor(f * 10 ** n) / 10 ** n
 
-    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal], quote=False) -> decimal.Decimal:
-        if isinstance(amount, str):  # to save time for developers
+    def refine_amount(self, symbol, amount: Union[str, decimal.Decimal], quote=False):
+        if type(amount) == str:  # to save time for developers
             amount = decimal.Decimal(amount)
-
-        if quote:
-            amount = amount.quantize(decimal.Decimal(1), rounding=decimal.ROUND_DOWN)
-        elif self.loaded:
+        if self.loaded:
+            precision = self.symbols[symbol]["baseAssetPrecision"]
             lot_size_filter = self.symbols[symbol]["filters"]["LOT_SIZE"]
-            step_size = decimal.Decimal(lot_size_filter["stepSize"]).normalize()
-            amount = self.remove_exponent(
-                amount.quantize(step_size, rounding=decimal.ROUND_DOWN),
+            step_size = decimal.Decimal(lot_size_filter["stepSize"])
+            amount = (
+                (
+                    f"%.{precision}f"
+                    % self.truncate(
+                        amount if quote else (amount - amount % step_size), precision
+                    )
+                )
+                .rstrip("0")
+                .rstrip(".")
             )
-
+        print(amount)
         return amount
 
-    def refine_price(self, symbol, price: Union[str, decimal.Decimal]) -> decimal.Decimal:
+    def refine_price(
+        self, symbol, price: Union[str, decimal.Decimal]
+    ) -> decimal.Decimal:
         if isinstance(price, str):  # to save time for developers
             price = decimal.Decimal(price)
 
@@ -385,7 +393,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/order", params=params, signed=True,
+            "/api/v3/order",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-order-trade
@@ -413,7 +423,10 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/order", "DELETE", params=params, signed=True,
+            "/api/v3/order",
+            "DELETE",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-all-open-orders-on-a-symbol-trade
@@ -424,7 +437,10 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/openOrders", "DELETE", params=params, signed=True,
+            "/api/v3/openOrders",
+            "DELETE",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#current-open-orders-user_data
@@ -435,7 +451,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/openOrders", params=params, signed=True,
+            "/api/v3/openOrders",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#all-orders-user_data
@@ -468,7 +486,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/allOrders", params=params, signed=True,
+            "/api/v3/allOrders",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#new-oco-trade
@@ -550,7 +570,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/orderList", params=params, signed=True,
+            "/api/v3/orderList",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-oco-trade
@@ -578,7 +600,10 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/order/oco", "DELETE", params=params, signed=True,
+            "/api/v3/order/oco",
+            "DELETE",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-open-oco-user_data
@@ -589,7 +614,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/openOrderList", params=params, signed=True,
+            "/api/v3/openOrderList",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-all-oco-user_data
@@ -615,7 +642,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/allOrderList", params=params, signed=True,
+            "/api/v3/allOrderList",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#account-information-user_data
@@ -626,7 +655,9 @@ class Client:
             params["recvWindow"] = receive_window
 
         return await self.http.send_api_call(
-            "/api/v3/account", params=params, signed=True,
+            "/api/v3/account",
+            params=params,
+            signed=True,
         )
 
     # https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#account-trade-list-user_data
@@ -658,7 +689,9 @@ class Client:
         if receive_window:
             params["recvWindow"] = receive_window
         return await self.http.send_api_call(
-            "/api/v3/myTrades", params=params, signed=True,
+            "/api/v3/myTrades",
+            params=params,
+            signed=True,
         )
 
     # USER DATA STREAM ENDPOINTS

@@ -117,11 +117,15 @@ class Client:
             price = decimal.Decimal(price)
 
         if self.loaded:
+            precision = self.symbols[symbol]["baseAssetPrecision"]
             price_filter = self.symbols[symbol]["filters"]["PRICE_FILTER"]
-            tick_size = decimal.Decimal(price_filter["tickSize"]).normalize()
-            price = price.quantize(tick_size, rounding=decimal.ROUND_DOWN)
-
-        return self.remove_exponent(price)
+            price = price - (price % decimal.Decimal(price_filter["tickSize"]))
+            price = (
+                (f"%.{precision}f" % self.truncate(price, precision))
+                .rstrip("0")
+                .rstrip(".")
+            )
+        return price
 
     def assert_symbol(self, symbol):
         if not symbol:

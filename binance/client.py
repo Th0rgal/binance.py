@@ -73,6 +73,10 @@ class Client:
         self.user_data_stream = UserEventsDataStream(self, endpoint, self.user_agent)
         await self.user_data_stream.start()
 
+    async def stop_user_events_listener(self):
+        print(f"stop_user_events_listener()")
+        await self.user_data_stream.stop()
+
     async def start_market_events_listener(
         self, endpoint="wss://stream.binance.com:9443"
     ):
@@ -80,6 +84,10 @@ class Client:
             self, endpoint, self.user_agent
         )
         await self.market_data_stream.start()
+
+    async def stop_market_events_listener(self):
+        print(f"stop_market_events_listener()")
+        await self.market_data_stream.stop()
 
     def assert_symbol_exists(self, symbol):
         if self.loaded:

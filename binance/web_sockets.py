@@ -27,12 +27,25 @@ class EventsDataStream:
                     f"Something went wrong with the websocket, reconnecting..."
                 )
                 asyncio.ensure_future(self.connect())
+            elif msg.type == aiohttp.WSMsgType.CLOSING:
+                logging.info(
+                    "_handle_messages loop is stopped"
+                )
+                break
             await self._handle_event(json.loads(msg.data))
 
 
 class MarketEventsDataStream(EventsDataStream):
     def __init__(self, client, endpoint, user_agent):
         super().__init__(client, endpoint, user_agent)
+        self.web_socket = None
+
+    async def stop(self):
+        """
+        Stop market data stream
+        """
+        print('MarketEventsDataStream.stop()')
+        await self.web_socket.close()
 
     async def start(self):
         async with aiohttp.ClientSession() as session:
@@ -64,6 +77,7 @@ class MarketEventsDataStream(EventsDataStream):
 class UserEventsDataStream(EventsDataStream):
     def __init__(self, client, endpoint, user_agent):
         super().__init__(client, endpoint, user_agent)
+        self.web_socket = None
 
     async def _heartbeat(
         self, listen_key, interval=60 * 30
@@ -73,19 +87,27 @@ class UserEventsDataStream(EventsDataStream):
             await asyncio.sleep(interval)
             await self.client.keep_alive_listen_key(listen_key)
 
+    async def stop(self):
+        """
+        Stop user data stream
+        """
+        print('UserEventsDataStream.stop()')
+        if self.web_socket:
+            await self.web_socket.close()
+
     async def start(self):
         async with aiohttp.ClientSession() as session:
             listen_key = (await self.client.create_listen_key())["listenKey"]
             if self.client.proxy:
-                web_socket = await session.ws_connect(
+                self.web_socket = await session.ws_connect(
                     f"{self.endpoint}/ws/{listen_key}"
                 )
             else:
-                web_socket = await session.ws_connect(
+                self.web_socket = await session.ws_connect(
                     f"{self.endpoint}/ws/{listen_key}", proxy=self.client.proxy
                 )
             asyncio.ensure_future(self._heartbeat(listen_key))
-            await self._handle_messages(web_socket)
+            await self._handle_messages(self.web_socket)
 
     async def _handle_event(self, content):
         event = self.client.events.wrap_event(content)

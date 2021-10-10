@@ -44,7 +44,9 @@ class Events:
         self.handlers[event_type].append(listener)
 
     def unregister(self, listener, event_type):
-        self.handlers[event_type].remove(listener)
+        # self.handlers[event_type].remove(listener)
+        self.handlers.pop(event_type, None)
+        self.registered_streams.discard(event_type)
 
     def wrap_event(self, event_data):
         wrapper_by_type = {

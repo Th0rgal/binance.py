@@ -1,7 +1,7 @@
 __title__ = "binance.py"
 __author__ = "Th0rgal"
 __license__ = "MIT"
-__version__ = "1.8.3"
+__version__ = "1.8.4"
 
 from .definitions import (
     SymbolStatus,

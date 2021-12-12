@@ -13,7 +13,7 @@ class EventsDataStream:
             self.user_agent = user_agent
         else:
             self.user_agent = f"binance.py (https://git.io/binance.py, {__version__})"
-
+    
     async def _handle_messages(self, web_socket):
         while True:
             msg = await web_socket.receive()
@@ -21,19 +21,21 @@ class EventsDataStream:
                 logging.error(
                     "Trying to receive something while the websocket is closed! Trying to reconnect."
                 )
-                asyncio.ensure_future(self.connect())
+                asyncio.ensure_future(self.start())
+                break
             elif msg.type is aiohttp.WSMsgType.ERROR:
                 logging.error(
                     f"Something went wrong with the websocket, reconnecting..."
                 )
-                asyncio.ensure_future(self.connect())
+                asyncio.ensure_future(self.start())
+                break
             elif msg.type == aiohttp.WSMsgType.CLOSING:
                 logging.info(
                     "_handle_messages loop is stopped"
                 )
                 break
             await self._handle_event(json.loads(msg.data))
-
+    
 
 class MarketEventsDataStream(EventsDataStream):
     def __init__(self, client, endpoint, user_agent):
@@ -44,7 +46,7 @@ class MarketEventsDataStream(EventsDataStream):
         """
         Stop market data stream
         """
-        print('MarketEventsDataStream.stop()')
+        # print('MarketEventsDataStream.stop()')
         await self.web_socket.close()
 
     async def start(self):
@@ -91,7 +93,7 @@ class UserEventsDataStream(EventsDataStream):
         """
         Stop user data stream
         """
-        print('UserEventsDataStream.stop()')
+        # print('UserEventsDataStream.stop()')
         if self.web_socket:
             await self.web_socket.close()
 

@@ -74,19 +74,20 @@ class Client:
         await self.user_data_stream.start()
 
     async def stop_user_events_listener(self):
-        print(f"stop_user_events_listener()")
+        # print(f"stop_user_events_listener()")
         await self.user_data_stream.stop()
 
     async def start_market_events_listener(
         self, endpoint="wss://stream.binance.com:9443"
     ):
+        # print(f"start_market_events_listener()")
         self.market_data_stream = MarketEventsDataStream(
             self, endpoint, self.user_agent
         )
         await self.market_data_stream.start()
 
     async def stop_market_events_listener(self):
-        print(f"stop_market_events_listener()")
+        # print(f"stop_market_events_listener()")
         await self.market_data_stream.stop()
 
     def assert_symbol_exists(self, symbol):
@@ -667,6 +668,25 @@ class Client:
 
         return await self.http.send_api_call(
             "/api/v3/account",
+            params=params,
+            signed=True,
+        )
+
+    # https://binance-docs.github.io/apidocs/spot/en/#funding-wallet-user_data
+    # Not can be used for Spot Test Network, for real SPOT market only
+    async def fetch_funding_wallet(self, asset=None, need_btc_valuation=None, receive_window=None):
+        params = {}
+
+        if asset:
+            params["asset"] = asset
+        if need_btc_valuation:
+            params["needBtcValuation"] = "true"
+        if receive_window:
+            params["recvWindow"] = receive_window
+
+        return await self.http.send_api_call(
+            "/sapi/v1/asset/get-funding-asset",
+            method="POST",
             params=params,
             signed=True,
         )

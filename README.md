@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="https://oraxen.vercel.app/todo/binance.py.svg" alt="Binance.py logo" width="256">
+  <img src="./logo.svg" alt="Binance.py logo" width="256">
   <br>
 </h1>
 
@@ -84,3 +84,7 @@ await client.close()
 - ETH (ENS): ``thomas.ethers.xyz``
 - ETH (legacy address): ``0x54c5a92c57A07f33500Ec9977797219D70D506C9``
 - BTC: ``bc1qm9g2k3fznl2a9vghnpnwem87p03txl4y5lahyu``
+
+## Powered by binance.py
+### [martin binance](https://github.com/DogsTailFarmer/martin-binance)
+Free trading system for Binance SPOT market. Adaptive customizable reverse grid strategy based on martingale.
